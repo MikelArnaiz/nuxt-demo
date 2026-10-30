@@ -235,3 +235,42 @@ installed Input/FieldControlMixin/FocusableMixin sources,
 [Vue DOM timing](https://vuejs.org/api/general.html#nexttick),
 [HTML email validity](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/email),
 and [Node TypeScript support](https://nodejs.org/api/typescript.html) on 2026-10-30.
+
+## D14. Route pages own state; share presentation and heading focus
+
+Milestone 6 moves the form from `app/app.vue` into `app/pages/index.vue` and adds
+`app/pages/success.vue`. The root renders `NuxtPage`, letting Nuxt generate `/`
+and `/success` from the filenames. Await `navigateTo('/success')` only when the
+current validation result has no errors. Navigate without a query string,
+payload, request, guard, or registration flag; success is generic and directly
+accessible as agreed in D1–D3.
+
+Keep every form ref in the sign-up page. Do not enable KeepAlive or use a global
+store: leaving the route unmounts the form, and returning through the link or
+browser history creates fresh state. The success page never receives the email,
+password, or opt-in.
+
+Extract `app/components/PageContent.vue` now that two pages need the same main
+landmark, heading, responsive width, and Nord typography/spacing. Its `heading`
+prop also drives `useHead` for a consistent, meaningful document title. Use a
+slot for route content and keep field layout in the form page. A separate Nuxt
+layout layer is unnecessary for this small shared shell.
+
+Focus the shell's heading in Vue's `onMounted`, using a typed template ref and
+`tabindex="-1"`. Each page mounts its own shell, so client navigation (including
+history) focuses the destination without router hooks, selectors, or timers.
+Also focus on direct visits and refreshes: this is a deliberate consistent
+starting point. The heading stays outside normal Tab order, with a visible
+keyboard focus outline. From success, Tab reaches the `NuxtLink` return action.
+No page transitions or cached page instances complicate this lifecycle.
+
+The production Nuxt server handles direct routes. Static deployment requires
+generating SPA output and configuring a host fallback to its entry HTML; document
+that requirement without adding an unchosen provider's configuration.
+
+Checked Nuxt's official [routing](https://learn.nuxt.com/en/concepts/routing),
+[head metadata](https://nuxt.com/docs/4.x/api/composables/use-head), and
+[deployment guidance](https://nuxt.com/docs/4.x/getting-started/deployment), and
+the installed Nuxt 4.6.3 page runtime. Verified actual production route changes,
+titles, focus, fresh state, direct access, refreshes, and responsive layout in
+the browser. The permanent browser suite remains milestone 7.

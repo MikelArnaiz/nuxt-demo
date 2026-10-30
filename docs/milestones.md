@@ -145,10 +145,28 @@ and application errors do not compete.
 
 ## 6. Success navigation
 
-- [ ] Add `/success` and navigate only after valid submission.
-- [ ] Reuse the content width, typography, and spacing from sign-up, without a logo or header.
-- [ ] Add the return link, page titles, and navigation focus behavior.
-- [ ] Verify direct visits, refreshes, browser back, and fresh form state.
+- [x] Add `/success` and navigate only after valid submission.
+- [x] Reuse the content width, typography, and spacing from sign-up, without a logo or header.
+- [x] Add the return link, page titles, and navigation focus behavior.
+- [x] Verify direct visits, refreshes, browser back, and fresh form state.
+
+Verified on 2026-10-30 using Node 24.22.2: all eight validation tests, type
+checking, and production build passed. Production-preview browser checks with
+real Nord controls covered invalid submission remaining on `/`, valid submission
+using pointer and Enter with opt-in both selected and unselected, and accepted
+`person@localhost`. Success showed generic content without form values.
+
+Direct `/success` visits and refreshes worked. The keyboard return link and
+browser Back/Forward updated titles and focused the destination heading.
+Returning to sign-up restored empty fields, hidden password, unchecked opt-in,
+and no errors. The shared content measured approximately 470px on desktop;
+both routes measured 272px at a 320 CSS-pixel viewport with no horizontal
+overflow. Production console checks showed no warnings or errors.
+
+Decision D14 records routing, component lifetime, titles, and mount-time focus,
+including the deliberate focus behavior on direct visits. The README documents
+the SPA fallback required for static-host direct routes. No static host has been
+deployed or configured. A permanent browser suite remains milestone 7.
 
 Learn: file-based routing, navigation, component lifetime, and page metadata.
 Document any static-host fallback needed for direct route access.

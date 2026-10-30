@@ -598,3 +598,128 @@ object, and later edits keep it current. Browser validity supplies email rules,
 while a pure function selects our messages. Nord renders associated errors, and
 we wait for Vue and Nord to update before focusing the first invalid field.
 Unit tests cover our rules; browser checks cover the real controls.”
+
+# Milestone 6: Success navigation
+
+## Files become routes
+
+`app/app.vue` now renders `<NuxtPage />`. Nuxt discovers `app/pages/index.vue`
+as `/` and `app/pages/success.vue` as `/success`, and renders the matching page
+inside that outlet. There is no hand-written route table. Nuxt uses Vue Router
+underneath; `NuxtPage` provides Nuxt's page lifecycle around it.
+
+With React Router, an outlet displays a matched route configured in a route
+tree. Nuxt's file convention supplies that configuration. If you know Next.js,
+file-based routing is a familiar idea, though Nuxt's directory conventions and
+runtime APIs differ. Nuxt auto-imports its routing helpers and Vue components
+under `app/components`; TypeScript checking verifies their use.
+
+## Navigate after validation
+
+The form's existing submit handler first enables validation. If neither error
+exists, it now awaits `navigateTo('/success')` and returns. Otherwise, it keeps
+the existing first-invalid-field focus behavior. Both pointer submission and
+Enter follow this same handler; opt-in does not affect validity.
+
+This is comparable to calling React Router's navigation function after checking
+form state. `navigateTo` is Nuxt's navigation helper; awaiting it handles the
+navigation operation before the handler completes. It changes routes through
+the client router without a native form request or full document reload.
+There is no registration request, loading state, or artificial delay.
+
+The success page uses `<NuxtLink to="/">Back to sign up</NuxtLink>`. This renders
+a real anchor with a destination, preserving normal link semantics and keyboard
+activation while supporting client navigation. It fills the same role as a
+React router's `Link`, rather than using a button that imperatively changes URLs.
+
+## Component lifetime resets the form
+
+All five form refs and the submitted flag moved with the form into the index
+page. They are not in the persistent root, a shared store, or browser storage.
+The success route receives none of those values and shows generic content.
+
+Without KeepAlive, leaving the form unmounts its component instance. Returning
+through the link or browser history creates another instance and executes its
+setup with empty strings and false booleans. A hidden password, unchecked opt-in,
+and no errors follow from those defaults. No reset watcher or manual field
+clearing is necessary. This matches React local state being discarded when a
+route component unmounts and initialized again when it remounts. Browser Back
+restores the route; it does not resurrect the old Vue component instance.
+
+Direct `/success` visits and refreshes intentionally work too. The page grants
+no access and proves no authentication, so a guard or stored success flag would
+not provide useful protection.
+
+## Share a shell with props and a slot
+
+`PageContent.vue` owns the repeated main landmark, centered heading, content
+width, and Nord spacing/type tokens. Each page passes a fixed `heading` prop
+and supplies its content between the component tags. `<slot />` renders that
+content, similar to React's `children`. `defineProps<{ heading: string }>()`
+declares and types the component's input; props flow down rather than providing
+shared mutable form state.
+
+The form keeps its own scoped field-layout styles. The root keeps the global
+body background and margin. Sharing the shell now has a concrete purpose:
+both pages stay visually consistent without duplicating the layout rules.
+An additional Nuxt layout abstraction is unnecessary for these two routes.
+
+## Titles and heading focus
+
+The shell uses `useHead(() => ({ title: ... }))` to derive the document title
+from its heading, giving “Sign up | Sign-up demo” and
+“You're signed up! | Sign-up demo”. `useHead` manages browser head elements with
+the component's lifetime; it replaces a manual effect writing `document.title`.
+The callback reads the current prop so the metadata remains reactive.
+`definePageMeta` instead describes router behavior such as layouts or guards;
+it is not needed just to set a document title.
+
+`useTemplateRef<HTMLHeadingElement>` identifies the shell's `h1`. `onMounted`
+focuses it after Vue inserts that shell's DOM, comparable to focusing a DOM ref
+in a React effect after mount. This heading is ordinary Vue-owned HTML, so no
+Nord `updateComplete` promise is needed. Each destination mounts its own shell,
+which covers link navigation and browser history without route watchers.
+
+The heading has `tabindex="-1"`: scripts can focus it, but Tab skips it as a
+normal tab stop. A `:focus-visible` outline preserves keyboard focus visibility.
+From success, Tab moves to the return link; from sign-up, it moves to Email.
+The same focus runs on direct visits and refreshes as a consistent starting
+point. These two pages have no transitions or cached component instances.
+
+## Direct routes need host support
+
+Client navigation already has the app loaded. A direct `/success` request first
+reaches the server, which must return the app entry HTML so the client router can
+render that page. The production Nuxt server does this. A static host needs the
+generated SPA files and a fallback/rewrite that preserves the requested URL.
+The README records the setup; no provider-specific deployment has been chosen.
+This is the same hosting concern as a React SPA using browser-history URLs.
+
+## Verification
+
+On 2026-10-30 with Node 24.22.2, all eight validation tests, type checking, and
+production build passed. Browser checks used actual Nord controls against the
+production preview: empty and malformed submissions stayed on sign-up; valid
+pointer and Enter submissions reached success with opt-in off and on.
+`person@localhost` remained accepted. Success showed no form values.
+
+Direct access, refreshes, keyboard return-link activation, and browser
+Back/Forward worked. Destination headings received focus and titles updated.
+Returning to sign-up recreated empty fields, masked password, unchecked opt-in,
+and no validation errors. Both routes retained approximately 470px desktop
+content and 272px content at a 320 CSS-pixel viewport, with no horizontal
+overflow. No production console warnings or errors appeared. Static-host
+configuration is documented, not deployed. Permanent browser tests stay in
+milestone 7.
+
+References: [Nuxt routing](https://learn.nuxt.com/en/concepts/routing),
+[Nuxt navigation](https://nuxt.com/docs/4.x/api/utils/navigate-to),
+[Nuxt head metadata](https://nuxt.com/docs/4.x/api/composables/use-head),
+[Nuxt deployment](https://nuxt.com/docs/4.x/getting-started/deployment), and
+[Vue lifecycle hooks](https://vuejs.org/api/composition-api-lifecycle.html#onmounted).
+
+When explaining this milestone aloud: “Nuxt turns page filenames into routes.
+Valid submission navigates to generic success, and leaving the form discards
+its local state. A shared shell keeps layout, titles, and heading focus
+consistent. Returning mounts a fresh form; direct routes also need server or
+static-host fallback support.”
