@@ -13,6 +13,29 @@ Registration is simulated locally; no account is created.
 
 ## Current status
 
-Milestone 0 is documented. Application implementation has not started.
-Setup, development, testing, and build instructions will be added alongside the
-relevant implementation milestones.
+Milestone 1 adds a minimal client-side Nuxt application displaying “Sign up”.
+
+## Setup and development
+
+Use Node.js 24.15.0 or newer within the Node 24 release line and npm.
+With nvm installed, run these commands from this directory:
+
+```sh
+nvm install
+nvm use
+npm ci
+npm run dev
+```
+
+Open the local URL printed by Nuxt (normally http://localhost:3000).
+
+## Type checking and production build
+
+```sh
+npm run typecheck
+npm run build
+npm run preview
+```
+
+Run type checking separately from the build. `preview` serves the production
+build locally; output is in `.output/`. No automated test suite is included yet.

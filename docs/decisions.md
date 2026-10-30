@@ -69,3 +69,20 @@ login, the home shortcut, and the account-switching link because those flows are
 outside scope. Apply the same typography and layout to the generic success page.
 Form behavior and data handling
 remain as specified.
+
+## D9. Minimal Nuxt 4 scaffold with explicit type checking
+
+Milestone 1 uses Nuxt 4.6.3, Vue 3.5.44, TypeScript 5.9.3, and vue-tsc 3.3.14.
+Pin direct dependencies and commit npm's lockfile for reproducible installation.
+Use the established TypeScript 5 compiler with vue-tsc; upgrading the compiler
+major version is not needed for this milestone. Node 24 (at least 24.15.0) meets
+Nuxt's engine requirement; `.nvmrc` selects that release line. The machine's
+default Node 25 is outside the supported range of this Nuxt release.
+
+Scaffold the few required files directly to preserve the existing documents and
+avoid starter features. Use Nuxt 4's `app/app.vue` entry point, `ssr: false`, and
+generated TypeScript project references. Keep the heading in a plain setup
+constant to demonstrate TypeScript and template bindings without adding state.
+Disable the development toolbar so the page contains only the requested heading.
+Run `nuxt typecheck` explicitly alongside the production build. No routing,
+styling system, form logic, or test framework is needed yet.

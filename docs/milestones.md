@@ -6,6 +6,10 @@ each commit should have one clear purpose and leave a reviewable change.
 Before moving on, explain what changed, how Vue or Nuxt implements it, why the
 approach was chosen, and how it was verified. Update the decision log when a
 meaningful choice changes. Do not scaffold later features ahead of their milestone.
+Explain the learning topics using React comparisons for an author new to Vue.
+Keep tutorial notes in [Vue and Nuxt learning notes](vue-nuxt-learning-notes.md);
+commit them alongside the implementation. Keep the README focused on setup,
+commands, and project-specific information.
 
 ## 0. Record the specification
 
@@ -17,10 +21,15 @@ Done when: the project has a readable implementation contract without applicatio
 
 ## 1. Minimal Nuxt application
 
-- [ ] Scaffold Nuxt and TypeScript in this repository, preserving these documents.
-- [ ] Configure client-side rendering and replace starter content with one heading.
-- [ ] Add development, type-check, and build instructions to the README.
-- [ ] Verify the app locally, type checking, and the production build.
+- [x] Scaffold Nuxt and TypeScript in this repository, preserving these documents.
+- [x] Configure client-side rendering and replace starter content with one heading.
+- [x] Add development, type-check, and build instructions to the README.
+- [x] Verify the app locally, type checking, and the production build.
+
+Verified on 2026-10-30 using Node 24.22.2: `npm run typecheck` and
+`npm run build` passed. Browser inspection of both `npm run dev` and
+`npm run preview` showed the single level-one “Sign up” heading.
+Decision D9 records the setup choices.
 
 Learn: Nuxt's role, configuration, entry point, single-file components, and
 `<script setup>`. Explain what runs in the browser and what the build tool does.
