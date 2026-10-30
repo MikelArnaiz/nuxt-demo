@@ -39,7 +39,8 @@ submit enabled and focus the first invalid field when submission fails.
 
 Use Nord's controls and tokens, local state, and straightforward validation.
 Introduce shared components, composables, or dependencies only when a concrete
-need appears. Framework and tooling versions will be selected during setup.
+need appears. Framework and tooling versions selected during setup are recorded
+in D9 and D10.
 
 ## D7. Verify behavior at the appropriate level
 
@@ -85,4 +86,34 @@ generated TypeScript project references. Keep the heading in a plain setup
 constant to demonstrate TypeScript and template bindings without adding state.
 Disable the development toolbar so the page contains only the requested heading.
 Run `nuxt typecheck` explicitly alongside the production build. No routing,
-styling system, form logic, or test framework is needed yet.
+styling system, form logic, or test framework was needed for milestone 1.
+
+## D10. Register Nord Web Components directly and load their Vue types
+
+Milestone 2 pins `@nordhealth/components` 5.4.4 and `@nordhealth/css` 5.3.0.
+Checked the current [Nord Vue integration guidance](https://nordhealth.design/docs/developer/web-components/#vue)
+before setup. Use the Vue declarations shipped with components, rather than the
+deprecated separate `@nordhealth/vue` package.
+
+Import Input and Button in a Nuxt client plugin so their browser registration
+runs before the app mounts. Recognize only `nord-*` tags as custom elements in
+Nuxt's Vue compiler options; unrelated misspelled component names should still
+produce normal Vue warnings. Import the supplied Vue declarations in
+`app/types/nord.d.ts`, which Nuxt's app TypeScript project includes, rather than
+editing generated configuration or replacing Nuxt's existing types.
+
+Load CSS globally through `css: ['@nordhealth/css']`. Version 5.3.0 exports its
+stylesheet at the package root; the older deep `lib/nord.min.css` import is
+blocked by its exports map. Use Nord spacing tokens for the form's spacing.
+
+Use sign-up terminology in this minimal integration: a `signup-form` class,
+an “Email” input with `name="email"`, `type="email"`, and `autocomplete="email"`,
+and a “Create account” button with `type="submit"`. Milestone 3 completes the
+static sign-up form. No wrapper components or extra integration module are needed.
+
+The form uses Vue's `@submit.prevent` modifier to prevent native submission from
+reloading the page or putting the email in the URL. It does not create an
+account or navigate yet. Reactive state, application validation, and success
+navigation remain in their planned milestones. The email input currently keeps
+its native format validation; validation ownership will be implemented explicitly
+in milestone 5.

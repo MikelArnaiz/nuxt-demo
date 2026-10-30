@@ -26,7 +26,7 @@ Done when: the project has a readable implementation contract without applicatio
 - [x] Add development, type-check, and build instructions to the README.
 - [x] Verify the app locally, type checking, and the production build.
 
-Verified on 2026-10-30 using Node 24.22.2: `npm run typecheck` and
+Milestone 1 was verified on 2026-10-30 using Node 24.22.2: `npm run typecheck` and
 `npm run build` passed. Browser inspection of both `npm run dev` and
 `npm run preview` showed the single level-one “Sign up” heading.
 Decision D9 records the setup choices.
@@ -36,9 +36,26 @@ Learn: Nuxt's role, configuration, entry point, single-file components, and
 
 ## 2. Nord integration
 
-- [ ] Add Nord styles and the components for a minimal input/button example.
-- [ ] Configure custom-element recognition and template types.
-- [ ] Verify rendering and interaction without integration warnings or type errors.
+- [x] Add Nord styles and components for a minimal sign-up form with an Email
+  input and a “Create account” submit button.
+- [x] Configure custom-element recognition and template types.
+- [x] Verify Nord component rendering and template types.
+- [ ] Verify the current submit form in the browser and run type checking
+  and the production build.
+
+The `signup-form` contains an Email input using `type="email"` and
+`autocomplete="email"`, and a “Create account” submit button.
+`@submit.prevent` prevents native submission from reloading the page or putting
+email in the URL; application submission logic is not implemented yet.
+The input retains native email-format validation; custom validation remains
+milestone 5.
+
+Nord template typing has been verified by checking that an invalid button
+variant produces a TypeScript error. Browser verification of the current form
+is pending: check pointer and keyboard submission, preservation of the entered
+value, absence of navigation or email in the URL, and console warnings/errors.
+Run `npm run typecheck` and `npm run build` to complete verification.
+Decision D10 records the integration choices.
 
 Learn: Web Components versus Vue components, registration, compiler configuration,
 CSS imports, and template typing. Check current official guidance before setup.

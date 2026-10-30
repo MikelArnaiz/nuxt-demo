@@ -13,7 +13,10 @@ Registration is simulated locally; no account is created.
 
 ## Current status
 
-Milestone 1 adds a minimal client-side Nuxt application displaying “Sign up”.
+Milestone 2 integrates Nord styles and Web Components. The page displays
+“Sign up”, an Email input, and a “Create account” submit button. Native submission
+is prevented; account creation and navigation are not implemented yet. The full sign-up form
+comes in later milestones.
 
 ## Setup and development
 
