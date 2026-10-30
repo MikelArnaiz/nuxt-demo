@@ -10,7 +10,8 @@
     "build": "nuxt build",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "test": "node --test tests/*.test.ts"
   },
   "dependencies": {
     "@nordhealth/components": "5.4.4",

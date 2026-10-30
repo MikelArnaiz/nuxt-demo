@@ -180,3 +180,58 @@ Checked the official [Vue custom-element property guidance](https://vuejs.org/gu
 [Vue form bindings](https://vuejs.org/guide/essentials/forms.html), and installed
 Nord 5.4.4 Input, Checkbox, and FormAssociatedMixin sources for their event and
 property contracts on 2026-10-30.
+
+## D13. Own validation messages while using browser email semantics
+
+Milestone 5 adds `novalidate` to the form and handles `@submit.prevent` explicitly.
+Application validation owns the specified timing and messages; native popovers
+must not prevent the handler or compete with Nord errors. Keep `required` and
+`type="email"` on Nord inputs for their visible markers, semantics, and input
+behavior. Submit remains enabled.
+
+One local `submitted` ref gates a computed error object. Before submission it is
+empty; afterward it derives errors from current email/password values on each
+edit. There is no separately synchronized error state or blur-based timing.
+Password visibility and opt-in do not participate in validation.
+
+Nord 5.4.4 does not expose native email validity through its public Input API.
+Use one detached native `input` with `type="email"` to inspect `validity.typeMismatch`
+for a trimmed copy of the email. It never enters the form or DOM. This preserves
+browser email rules without a regex, validation dependency, native popover, or
+application access to Nord's shadow DOM. A pure `validateSignup` function receives
+that mismatch boolean and selects the required/format messages. It checks
+password length directly, without trimming, strength rules, or transformation.
+
+Accept single-label domains such as `person@localhost`, as permitted by HTML
+email-input validation. This also allows `foo@foo`: acceptance is based on
+syntax, not a special allowance for localhost or proof that a mailbox exists.
+A dotted-domain requirement is a reasonable additional product rule, but is
+outside this demo's chosen validation policy. The `person@localhost` acceptance
+case has a focused message-selection test and a real-browser check; the unit
+test alone does not establish browser email syntax. `foo@foo` was also verified
+in the real browser as an accepted consequence of this policy.
+
+Bind each message through Nord's public `error` property. The installed component
+conditionally exposes its built-in error alert, connects it with
+`aria-describedby`, and marks its native input `aria-invalid`. Reusing this UI
+avoids duplicate error markup or ARIA references across shadow roots.
+
+Typed `useTemplateRef` references identify the Nord host elements. On invalid
+submission, select email before password, await Vue's `nextTick`, then await
+Nord's `updateComplete` before calling its public `focus()` method. These are
+two rendering systems: Vue first assigns the properties, then Lit renders the
+accessible error. Editing afterward updates errors without moving focus.
+
+Use Node 24's built-in test runner and TypeScript stripping for eight focused
+tests of message selection, required precedence, password whitespace, and
+correction/regression. No new package is needed. Unit tests deliberately receive
+the format result; they do not claim to implement or verify HTML email parsing.
+Real-browser checks establish format semantics, event timing, focus, and Nord
+error associations. The permanent browser suite stays in milestone 7.
+
+Checked current [Nord Input guidance](https://nordhealth.design/components/input/),
+installed Input/FieldControlMixin/FocusableMixin sources,
+[Vue template refs](https://vuejs.org/guide/essentials/template-refs.html),
+[Vue DOM timing](https://vuejs.org/api/general.html#nexttick),
+[HTML email validity](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/email),
+and [Node TypeScript support](https://nodejs.org/api/typescript.html) on 2026-10-30.

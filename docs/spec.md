@@ -60,8 +60,10 @@ the link or browser history starts with fresh application state.
 
 Email format validation follows standard HTML email-input validity semantics,
 without a custom restrictive regular expression or deliverability checks.
-Examples: `person@example.com` is accepted; `person`, `@example.com`, and
-`person@` are rejected. An empty or whitespace-only email is missing.
+Examples: `person@example.com` and `person@localhost` are accepted; `person`,
+`@example.com`, and `person@` are rejected. Single-label domains are accepted;
+requiring a dotted domain would be an additional application rule. An empty
+or whitespace-only email is missing.
 
 No password-strength or minimum-length policy beyond nonempty input is imposed.
 A whitespace-only password therefore counts as nonempty; this is a deliberate
@@ -145,6 +147,7 @@ management, and a custom component library.
 - [ ] Empty submission shows both required errors and focuses email.
 - [ ] Whitespace-only email shows the required error.
 - [ ] Malformed email prevents navigation and shows the format error.
+- [x] `person@localhost` is accepted by email validation as a single-label domain.
 - [ ] Surrounding email whitespace does not invalidate an otherwise valid address.
 - [ ] Empty password prevents navigation; when email is valid, password receives focus.
 - [ ] Invalid submission preserves email, password, and opt-in state.

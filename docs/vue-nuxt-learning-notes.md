@@ -460,3 +460,141 @@ property bindings and DOM events connect Nord controls to Vue. Computed values
 keep password type and action text in sync, and a stable label span respects
 the DOM nodes Nord owns. We checked real controls, keyboard behavior, types,
 build output, and console messages before introducing custom validation.”
+
+# Milestone 5: Validation and errors
+
+## Submission owns when errors appear
+
+The form now uses `novalidate` and `@submit.prevent="submit"`. These do different
+jobs: `novalidate` lets the submit handler run without browser validation
+popovers, while `.prevent` cancels native submission and its page navigation.
+Nord still receives `required` and `type="email"` for field semantics and UI.
+
+In React this is comparable to `<form noValidate onSubmit={handleSubmit}>`, with
+`event.preventDefault()` inside the handler. It is normal form submission, so
+both clicking Create account and pressing Enter use the same path. The
+visibility control keeps `type="button"` and does not enter that path.
+
+A local `submitted` ref starts as `false`. The handler sets it to `true`, and
+it stays true until the component is recreated. A computed value derives the
+current errors:
+
+```ts
+const errors = computed(() => {
+  if (!submitted.value) return {}
+
+  emailValidator.value = email.value.trim()
+  return validateSignup(email.value, password.value, emailValidator.validity.typeMismatch)
+})
+```
+
+The first branch hides errors before an attempt. Afterward, the getter reads
+email and password, so editing either invalidates its cached result. Corrected
+errors disappear and newly invalid values produce errors again. No watcher or
+extra mutable error refs are needed. Neither checkbox nor visibility state is
+a validation dependency, and editing never moves focus.
+
+In React, we could calculate the same errors during rendering from form state
+and a `submitted` state value. The Vue getter reacts to the refs it reads;
+`<script setup>` itself does not rerun after every keystroke.
+
+## Separate browser rules from message selection
+
+`emailValidator` is a detached native input with `type="email"`. Assigning a
+trimmed copy of the email and reading `validity.typeMismatch` uses the browser's
+format rules without displaying its messages. This is supported here because
+Nuxt has `ssr: false`: component setup runs in the browser, where `document`
+exists. An SSR application would need to defer browser-only work appropriately.
+
+Nord's public API does not supply this validity result. A separate native input
+avoids coupling application logic to the component's internal shadow DOM. It is
+never mounted, cannot receive focus, and does not join form submission. Its value
+is only a temporary validation copy; the code never assigns a trimmed password
+or changes the form state as part of validation.
+
+`app/utils/signup-validation.ts` holds the pure `validateSignup` function. It
+receives strings and the browser's format result and returns an error object.
+Empty/whitespace-only email takes precedence over format mismatch. Password
+validation checks length directly, so even a single space is nonempty. The
+function has no Vue imports, DOM access, persistence, or side effects. Like a
+plain utility used by a React component, it can be tested independently.
+
+## Conditional errors through Nord
+
+`:error="errors.email"` and `:error="errors.password"` bind the current messages
+to the custom elements' public properties. When a field has no error, its value
+is `undefined`. Nord conditionally displays its built-in error UI, sets
+`aria-invalid` on the actual input, and connects the message with
+`aria-describedby` inside the same shadow root. It also supplies an error alert.
+
+For ordinary Vue-owned markup, `v-if="errors.email"` would mount a node only when
+the expression is truthy, much like `{errors.email && <p>...</p>}` in React.
+Here Nord already owns conditional error rendering and accessibility wiring,
+so a second paragraph would duplicate that responsibility. Setting ARIA only
+on a host element would not prove that its internal native input is associated
+with the message; the real browser checks inspected that boundary.
+
+## Element refs and two DOM update queues
+
+`useTemplateRef<NordInput>('emailInput')` connects to `ref="emailInput"` in the
+template. Its `.value` is the Nord host element after mount and can be null
+before mounting or after unmounting. This resembles React's `useRef` plus a
+`ref` prop, though Vue uses a matching template-ref name and `.value` instead
+of `.current`. A DOM ref grants access to an element; it does not replace the
+separate reactive ref that owns the email string.
+
+Invalid submission chooses the first field with an error, then waits:
+
+```ts
+await nextTick()
+await firstInvalidInput.updateComplete
+firstInvalidInput.focus()
+```
+
+`nextTick` waits for Vue to flush the property bindings. Nord is built with Lit
+and schedules its own rendering after those properties change. Its
+`updateComplete` promise waits for that work, so the error exists and is
+associated before Nord's public `focus()` forwards focus to the internal input.
+No timeout or application shadow-root query is necessary. In React, an effect
+or layout effect is commonly used for work after a commit; with a Web Component
+there can still be a second component-owned update to await.
+
+## Verification and its limits
+
+`npm test` uses Node 24's built-in test runner and native TypeScript stripping.
+No test framework dependency was added. The eight tests cover required errors,
+missing-email precedence, supplied format mismatch, surrounding email
+whitespace, explicit `person@localhost` acceptance, missing password, unchanged nonempty
+passwords, and repeated correction/regression. Type stripping runs code; it does
+not type-check it.
+Application types are checked separately with `npm run typecheck`.
+
+These tests receive the browser's format result; passing `true` in a unit test
+does not prove that an address is malformed. Browser checks with actual Nord
+elements supplied that evidence for `person`, `@example.com`, `person@`, valid
+addresses with surrounding spaces and `person@localhost`. Single-label domains
+are deliberately accepted; a dotted-domain requirement would be an additional
+application rule. Decision D13 records the consequences of this choice.
+Browser checks also covered
+initial error suppression, empty submission, whitespace email/password,
+correction and newly invalid edits, pointer/Enter submission, first-invalid
+focus, accessible error associations, value retention, checkbox choices,
+password visibility, and reset on reload. Narrow-screen errors had no horizontal
+overflow. No application errors or warnings appeared; Lit emitted its expected
+development-mode notice.
+
+On 2026-10-30 using Node 24.22.2, all eight tests, type checking, and production
+build passed. Valid submission currently stays on the form: success navigation
+is milestone 6. A permanent browser suite remains milestone 7.
+
+References: [Nord Input](https://nordhealth.design/components/input/),
+[Vue template refs](https://vuejs.org/guide/essentials/template-refs.html),
+[Vue `nextTick`](https://vuejs.org/api/general.html#nexttick),
+[HTML email inputs](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/email),
+and [Node TypeScript support](https://nodejs.org/api/typescript.html).
+
+When explaining this milestone aloud: “Submission enables a computed error
+object, and later edits keep it current. Browser validity supplies email rules,
+while a pure function selects our messages. Nord renders associated errors, and
+we wait for Vue and Nord to update before focusing the first invalid field.
+Unit tests cover our rules; browser checks cover the real controls.”

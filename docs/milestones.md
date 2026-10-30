@@ -109,10 +109,35 @@ Explain the differences from React state and rendering.
 
 ## 5. Validation and errors
 
-- [ ] Handle submission and the specified validation rules and timing.
-- [ ] Display associated errors and focus the first invalid field.
-- [ ] Add focused validation tests where they provide useful coverage.
-- [ ] Verify empty, malformed, corrected, and newly invalid values.
+- [x] Handle submission and the specified validation rules and timing.
+- [x] Display associated errors and focus the first invalid field.
+- [x] Add focused validation tests where they provide useful coverage.
+- [x] Verify empty, malformed, corrected, and newly invalid values.
+
+Verified on 2026-10-30 using Node 24.22.2: all eight focused validation tests,
+type checking, and production build passed. Browser checks with actual Nord
+controls covered initial suppression of errors, empty submission, whitespace-only
+email, malformed addresses (`person`, `@example.com`, `person@`), surrounding
+email whitespace, corrected and newly invalid values, and a whitespace-only
+password. Single-label domains such as `person@localhost` were accepted
+because this demo follows HTML email-input validation. Requiring a dotted
+domain would be an additional application rule.
+
+The explicit `person@localhost` acceptance case has a focused message-selection
+test and was also checked in the real browser. Decision D13 explains the wider
+consequences of accepting single-label domains.
+
+Pointer and Enter submission focused email first, or password when email was
+valid. Nord's internal native inputs exposed `aria-invalid` and an
+`aria-describedby` reference to their visible error; both were removed on
+correction. Errors appeared in the accessibility tree. Opt-in selection and
+entered values survived invalid submission; toggling visibility did not submit
+or introduce errors before the first attempt. A narrow-viewport inspection
+showed readable errors without horizontal overflow. Reload reset validation and
+form state. Console checks showed only Lit's expected development-mode notice.
+
+Decision D13 records validation ownership and focus timing. Valid submissions
+stay on the form until success navigation is implemented in milestone 6.
 
 Learn: submission events, pure logic, conditional rendering, element references,
 and DOM update timing. Choose validation ownership explicitly so browser messages
@@ -132,6 +157,7 @@ Document any static-host fallback needed for direct route access.
 
 - [ ] Add a small browser suite covering the core acceptance scenarios.
 - [ ] Exercise actual Nord components rather than replacing them with test doubles.
+- [ ] Include `person@localhost` as an accepted single-label email in the browser suite.
 - [ ] Manually inspect keyboard use, errors, focus, zoom, and responsive layout.
 - [ ] Check both routes against the visual acceptance criteria, allowing Nord
   component styling to take precedence over exact matching of the reference.

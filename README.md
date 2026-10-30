@@ -13,14 +13,17 @@ Registration is simulated locally; no account is created.
 
 ## Current status
 
-Milestone 4 connects Email, Password, and the optional product-updates checkbox
-to local reactive state. “Show password” / “Hide password” changes visibility
-without clearing the value or submitting. The white page uses a centered heading
-and a responsive 470px content column, without a header or form card.
+Milestone 5 adds validation on submission, then updates errors as fields change.
+Nord inputs display associated required/format errors, and invalid submission
+focuses the first invalid field. Email uses browser email-format rules after
+ignoring surrounding whitespace; passwords need only be nonempty and are never
+trimmed. Password visibility and the optional product-updates checkbox remain
+connected to local state.
 
-Native submission is prevented. Values stay in component memory and reset on
-reload. Custom validation and success navigation follow in milestones 5 and 6;
-no account is created.
+The white page uses a centered heading and a responsive 470px content column,
+without a header or form card. Native submission is prevented. Values stay in
+component memory and reset on reload. Valid submissions currently stay on the
+form; success navigation follows in milestone 6. No account is created.
 
 ## Setup and development
 
@@ -36,13 +39,19 @@ npm run dev
 
 Open the local URL printed by Nuxt (normally http://localhost:3000).
 
-## Type checking and production build
+## Tests, type checking, and production build
 
 ```sh
+npm test
 npm run typecheck
 npm run build
 npm run preview
 ```
 
+`npm test` runs focused validation tests using Node's built-in test runner and
+TypeScript support, with no additional test dependency. These test message
+selection and password rules; browser email semantics and real Nord interactions
+were checked manually. A permanent browser suite follows in milestone 7.
+
 Run type checking separately from the build. `preview` serves the production
-build locally; output is in `.output/`. No automated test suite is included yet.
+build locally; output is in `.output/`.
