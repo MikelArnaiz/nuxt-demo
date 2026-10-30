@@ -1,4 +1,5 @@
 <template>
+  <NuxtRouteAnnouncer politeness="polite" :atomic="true" />
   <NuxtPage />
 </template>
 

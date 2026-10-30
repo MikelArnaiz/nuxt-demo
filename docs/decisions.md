@@ -253,7 +253,7 @@ installed Input/FieldControlMixin/FocusableMixin sources,
 [HTML email validity](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/email),
 and [Node TypeScript support](https://nodejs.org/api/typescript.html) on 2026-10-30.
 
-## D14. Route pages own state; share presentation and heading focus
+## D14. Route pages own state; share presentation and announce route changes
 
 Milestone 6 moves the form from `app/app.vue` into `app/pages/index.vue` and adds
 `app/pages/success.vue`. The root renders `NuxtPage`, letting Nuxt generate `/`
@@ -273,13 +273,20 @@ prop also drives `useHead` for a consistent, meaningful document title. Use a
 slot for route content and keep field layout in the form page. A separate Nuxt
 layout layer is unnecessary for this small shared shell.
 
-Focus the shell's heading in Vue's `onMounted`, using a typed template ref and
-`tabindex="-1"`. Each page mounts its own shell, so client navigation (including
-history) focuses the destination without router hooks, selectors, or timers.
-Also focus on direct visits and refreshes: this is a deliberate consistent
-starting point. The heading stays outside normal Tab order, with a visible
-keyboard focus outline. From success, Tab reaches the `NuxtLink` return action.
-No page transitions or cached page instances complicate this lifecycle.
+Before milestone 7, replace the original mount-time heading focus with a live
+region at the user's request: automatic focus caused an intrusive heading
+outline on both direct visits and route changes. Headings now have no template
+ref, `tabindex`, focus hook, or focus-specific styling.
+
+Mount one `NuxtRouteAnnouncer` in `app/app.vue`, alongside `NuxtPage`, so its
+visually hidden live region persists across route changes. Use `politeness="polite"`
+and `:atomic="true"` to announce the complete updated document title without
+interrupting current speech or moving focus. The existing `useHead` titles
+provide the messages, including “You're signed up!”. Nuxt's
+built-in component avoids custom route watchers and announcement timing code.
+Direct visits and refreshes do not automatically focus anything; the first Tab
+reaches Email on sign-up or the return link on success. Keep Nord's normal
+interactive focus indicators and the first-invalid-field focus on submission.
 
 The production Nuxt server handles direct routes. Static deployment requires
 generating SPA output and configuring a host fallback to its entry HTML; document
@@ -290,4 +297,19 @@ Checked Nuxt's official [routing](https://learn.nuxt.com/en/concepts/routing),
 [deployment guidance](https://nuxt.com/docs/4.x/getting-started/deployment), and
 the installed Nuxt 4.6.3 page runtime. Verified actual production route changes,
 titles, focus, fresh state, direct access, refreshes, and responsive layout in
-the browser. The permanent browser suite remains milestone 7.
+the browser for the original milestone. The revised announcement behavior is
+verified separately below. The permanent browser suite remains milestone 7.
+
+The live-region implementation was checked against the installed Nuxt 4.6.3
+`NuxtRouteAnnouncer` and `useRouteAnnouncer` sources, which update their message
+after head metadata renders. See [Nuxt route announcer](https://nuxt.com/docs/4.x/api/components/nuxt-route-announcer).
+
+Reverified on 2026-10-30 using Node 24.22.2: all eight validation tests, type
+checking, and production build passed. Development-browser checks with actual
+Nord controls confirmed one `role="status"`, `aria-live="polite"`,
+`aria-atomic="true"` region whose text follows titles on successful submission,
+keyboard return navigation, and browser history. Direct visits and refreshes
+left focus on the document; headings have no `tabindex` or visible outline.
+Tab reached Email or the return link, and invalid submission still focused
+Email. Live-region DOM updates were verified; spoken output with a screen
+reader remains a manual milestone 7 check.

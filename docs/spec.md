@@ -123,8 +123,9 @@ behavior over exact reproduction of Teamtailor controls.
 - Make the visibility control's accessible name describe its current action.
 - Use appropriate email and new-password autocomplete hints.
 - Use meaningful page titles, a main landmark, and a primary heading per page.
-- On client-side navigation, update the title and move focus to the destination
-  heading so the page change is understandable to keyboard and screen-reader users.
+- On client-side navigation, update the title and announce it through a visually
+  hidden polite live region. Do not automatically focus headings on navigation,
+  direct visits, or refreshes. Tab follows the natural control order.
 - Verify actual Nord control behavior rather than assuming that the design
   system alone guarantees accessibility.
 
@@ -157,7 +158,7 @@ management, and a custom component library.
 - [ ] Valid submission reaches success with the opt-in both selected and unselected.
 - [ ] Success direct visits and refreshes work without personal data or stored state.
 - [ ] Returning to sign-up starts a fresh form.
-- [ ] Keyboard order, focus visibility, labels, error associations, and navigation focus work.
+- [ ] Keyboard order, focus visibility, labels, error associations, and route announcements work.
 - [ ] Sign-up displays a centered “Sign up” heading on a white page without a header, logo, or form card.
 - [ ] Desktop content is approximately 470 CSS pixels wide, with left-aligned field labels and full-width inputs and submit button.
 - [ ] Both routes use consistent typography, content width, and spacing, with Nord controls and tokens taking precedence over exact visual matching.

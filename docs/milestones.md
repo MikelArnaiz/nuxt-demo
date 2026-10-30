@@ -147,7 +147,7 @@ and application errors do not compete.
 
 - [x] Add `/success` and navigate only after valid submission.
 - [x] Reuse the content width, typography, and spacing from sign-up, without a logo or header.
-- [x] Add the return link, page titles, and navigation focus behavior.
+- [x] Add the return link, page titles, and live route announcements.
 - [x] Verify direct visits, refreshes, browser back, and fresh form state.
 
 Verified on 2026-10-30 using Node 24.22.2: all eight validation tests, type
@@ -157,16 +157,25 @@ using pointer and Enter with opt-in both selected and unselected, and accepted
 `person@localhost`. Success showed generic content without form values.
 
 Direct `/success` visits and refreshes worked. The keyboard return link and
-browser Back/Forward updated titles and focused the destination heading.
+browser Back/Forward updated titles. The original heading-focus behavior was
+replaced with live announcements before milestone 7, as described below.
 Returning to sign-up restored empty fields, hidden password, unchecked opt-in,
 and no errors. The shared content measured approximately 470px on desktop;
 both routes measured 272px at a 320 CSS-pixel viewport with no horizontal
 overflow. Production console checks showed no warnings or errors.
 
-Decision D14 records routing, component lifetime, titles, and mount-time focus,
-including the deliberate focus behavior on direct visits. The README documents
+Decision D14 records routing, component lifetime, titles, and live announcements
+without automatic heading focus. The README documents
 the SPA fallback required for static-host direct routes. No static host has been
 deployed or configured. A permanent browser suite remains milestone 7.
+
+Before milestone 7, replaced automatic heading focus with the persistent Nuxt
+route announcer at the user's request. Reverified all eight validation tests,
+type checking, and the production build. Development-browser checks confirmed
+polite, atomic live-region title updates on successful submission, keyboard
+return, and history navigation; no heading focus on direct visits or refreshes;
+natural Tab order; and unchanged first-invalid-field focus. Screen-reader
+speech still needs manual verification in milestone 7.
 
 Learn: file-based routing, navigation, component lifetime, and page metadata.
 Document any static-host fallback needed for direct route access.

@@ -15,8 +15,9 @@ Registration is simulated locally; no account is created.
 
 Milestone 6 adds the `/success` route after valid submission and a return link
 to a fresh sign-up form. Both routes share layout and typography, have meaningful
-page titles, and focus their heading when mounted. Direct success visits and
-refreshes show the same generic confirmation; no authentication is implied.
+page titles, and announce title changes through a visually hidden polite live
+region without moving focus to headings. Direct success visits and refreshes
+show the same generic confirmation; no authentication is implied.
 
 The form validates on submission, then updates errors as fields change.
 Nord inputs display associated required/format errors, and invalid submission

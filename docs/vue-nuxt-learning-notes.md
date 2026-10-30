@@ -694,27 +694,35 @@ body background and margin. Sharing the shell now has a concrete purpose:
 both pages stay visually consistent without duplicating the layout rules.
 An additional Nuxt layout abstraction is unnecessary for these two routes.
 
-## Titles and heading focus
+## Titles and live route announcements
 
 The shell uses `useHead(() => ({ title: ... }))` to derive the document title
-from its heading, giving “Sign up | Sign-up demo” and
-“You're signed up! | Sign-up demo”. `useHead` manages browser head elements with
+from its heading, giving “Sign up” and
+“You're signed up!”. `useHead` manages browser head elements with
 the component's lifetime; it replaces a manual effect writing `document.title`.
 The callback reads the current prop so the metadata remains reactive.
 `definePageMeta` instead describes router behavior such as layouts or guards;
 it is not needed just to set a document title.
 
-`useTemplateRef<HTMLHeadingElement>` identifies the shell's `h1`. `onMounted`
-focuses it after Vue inserts that shell's DOM, comparable to focusing a DOM ref
-in a React effect after mount. This heading is ordinary Vue-owned HTML, so no
-Nord `updateComplete` promise is needed. Each destination mounts its own shell,
-which covers link navigation and browser history without route watchers.
+Before milestone 7, we removed the original `onMounted` heading focus, template
+ref, `tabindex="-1"`, and heading outline styling. That focus moved the user's
+position and produced an intrusive outline, even on a direct visit or refresh.
+`tabindex="-1"` had only made programmatic focus possible; the `.focus()` call
+was what actually moved focus.
 
-The heading has `tabindex="-1"`: scripts can focus it, but Tab skips it as a
-normal tab stop. A `:focus-visible` outline preserves keyboard focus visibility.
-From success, Tab moves to the return link; from sign-up, it moves to Email.
-The same focus runs on direct visits and refreshes as a consistent starting
-point. These two pages have no transitions or cached component instances.
+The root now renders `<NuxtRouteAnnouncer politeness="polite" :atomic="true" />`
+alongside `NuxtPage`. This built-in component keeps a visually hidden live region
+mounted while pages change and updates it from the document title after head
+metadata renders. `polite` lets assistive technology announce the change without
+interrupting current speech; `atomic` requests the entire title. On success, the
+message is “You're signed up!”.
+
+In React terms, this is a persistent announcement component above the routed
+content rather than a focus effect in each page. There is no custom route
+watcher, timer, or duplicate message state. It communicates the destination
+without focusing the heading. On a fresh visit, Tab reaches Email on sign-up
+or the return link on success. Normal interactive focus styling and the
+first-invalid-input focus remain in place.
 
 ## Direct routes need host support
 
@@ -734,7 +742,8 @@ pointer and Enter submissions reached success with opt-in off and on.
 `person@localhost` remained accepted. Success showed no form values.
 
 Direct access, refreshes, keyboard return-link activation, and browser
-Back/Forward worked. Destination headings received focus and titles updated.
+Back/Forward worked and titles updated. These original checks included heading
+focus; the live-region replacement was verified separately before milestone 7.
 Returning to sign-up recreated empty fields, masked password, unchecked opt-in,
 and no validation errors. Both routes retained approximately 470px desktop
 content and 272px content at a 320 CSS-pixel viewport, with no horizontal
@@ -746,10 +755,11 @@ References: [Nuxt routing](https://learn.nuxt.com/en/concepts/routing),
 [Nuxt navigation](https://nuxt.com/docs/4.x/api/utils/navigate-to),
 [Nuxt head metadata](https://nuxt.com/docs/4.x/api/composables/use-head),
 [Nuxt deployment](https://nuxt.com/docs/4.x/getting-started/deployment), and
-[Vue lifecycle hooks](https://vuejs.org/api/composition-api-lifecycle.html#onmounted).
+[Nuxt route announcer](https://nuxt.com/docs/4.x/api/components/nuxt-route-announcer).
 
 When explaining this milestone aloud: “Nuxt turns page filenames into routes.
 Valid submission navigates to generic success, and leaving the form discards
-its local state. A shared shell keeps layout, titles, and heading focus
-consistent. Returning mounts a fresh form; direct routes also need server or
+its local state. A shared shell keeps layout and titles consistent, while the
+root announces title changes without moving focus. Returning mounts a fresh
+form; direct routes also need server or
 static-host fallback support.”
