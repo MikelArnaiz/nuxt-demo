@@ -144,3 +144,39 @@ Checked the official [Input](https://nordhealth.design/components/input/),
 2026-10-30, and confirmed the selected APIs in the installed 5.4.4 declarations.
 The current documentation also describes newer Field composition; standalone
 labels meet this form's needs without introducing another abstraction.
+
+## D12. Bind Nord form properties and events explicitly
+
+Milestone 4 uses local Vue `ref`s for email, password, product-updates opt-in,
+and password visibility. Bind `value` with `input` for text fields, and `checked`
+with `change` for the checkbox. Read these public properties from the event's
+`currentTarget`, typed using Nord's shipped element declarations. The type-only
+imports add no runtime registration; the client plugin still owns that.
+
+These are Web Components, rather than Vue components implementing the
+`modelValue` / `update:modelValue` convention. Native checkbox `v-model` also
+selects its behavior from the native input type; a `nord-checkbox` tag does not
+automatically get that native-checkbox behavior. Explicit bindings make both
+directions clear without adding wrappers or a custom directive. Vue sets existing
+custom-element properties through `v-bind`; registration already precedes mount.
+
+Derive password input type and the button's action label with `computed` from
+one visibility boolean. Change the existing input's type without remounting it
+or modifying the password. Keep the button's explicit `type="button"`; changing
+visibility neither submits nor invokes validation. Use the changing action name
+“Show password” / “Hide password”, without adding toggle-state semantics to a
+button whose label changes.
+
+Wrap the changing button label in a stable `span`. Nord 5.4.4 adds a light-DOM
+proxy button and Lit marker nodes inside the host for form participation.
+Updating bare interpolation lets Vue replace the host's text content, removing
+those nodes and causing Lit `ChildPart` errors. Updating only the span's text
+preserves Nord's host children. Browser console checks exposed this issue even
+though the label and visibility appeared to work.
+
+Keep values unchanged in memory, with no trimming, logging, persistence, or
+network requests. Validation and navigation remain in milestones 5 and 6.
+Checked the official [Vue custom-element property guidance](https://vuejs.org/guide/extras/web-components.html#passing-dom-properties),
+[Vue form bindings](https://vuejs.org/guide/essentials/forms.html), and installed
+Nord 5.4.4 Input, Checkbox, and FormAssociatedMixin sources for their event and
+property contracts on 2026-10-30.

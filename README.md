@@ -13,14 +13,14 @@ Registration is simulated locally; no account is created.
 
 ## Current status
 
-Milestone 3 completes the static sign-up page: required Email and Password inputs,
-a “Show password” button, an optional product-updates checkbox, and a full-width
-“Create account” button. The white page uses a centered heading and a responsive
-470px content column, without a header or form card.
+Milestone 4 connects Email, Password, and the optional product-updates checkbox
+to local reactive state. “Show password” / “Hide password” changes visibility
+without clearing the value or submitting. The white page uses a centered heading
+and a responsive 470px content column, without a header or form card.
 
-Native submission is prevented. The visibility button is present but its toggle
-behavior and reactive form state arrive in milestone 4. Custom validation and
-success navigation follow in milestones 5 and 6; no account is created.
+Native submission is prevented. Values stay in component memory and reset on
+reload. Custom validation and success navigation follow in milestones 5 and 6;
+no account is created.
 
 ## Setup and development
 

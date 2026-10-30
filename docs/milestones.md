@@ -85,9 +85,24 @@ state, custom validation, and navigation are introduced in later milestones.
 
 ## 4. Reactive form state
 
-- [ ] Connect email, password, and opt-in to local state.
-- [ ] Implement password visibility without submitting or losing the value.
-- [ ] Verify each interaction manually without logging credentials.
+- [x] Connect email, password, and opt-in to local state.
+- [x] Implement password visibility without submitting or losing the value.
+- [x] Verify each interaction manually without logging credentials.
+
+Verified on 2026-10-30 using Node 24.22.2: type checking and production build
+passed. Browser checks covered initially empty fields and unchecked opt-in,
+email/password edits, pointer and keyboard checkbox changes, and password
+visibility using pointer, Enter, and Space. The action label and input type
+changed together, values survived repeated toggles, and visibility did not submit
+or trigger native required-field focus. Pointer/Enter submission stayed on the
+same URL with values retained; reload reset the fields, opt-in, and visibility.
+Disposable samples were used without adding credential logs to application code.
+
+Console checks caught and verified the fix for a Nord light-DOM interaction:
+the changing button label needs a stable span to preserve Nord's proxy button
+and Lit marker nodes. Fresh-page checks after the fix showed no application
+warnings or errors, only Lit's expected development-mode notice. Decision D12
+records the binding and integration choices.
 
 Learn: reactive state, property bindings, events, `v-model`, and derived values.
 Explain the differences from React state and rendering.

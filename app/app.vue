@@ -1,5 +1,28 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue'
+import type NordCheckbox from '@nordhealth/components/lib/Checkbox'
+import type NordInput from '@nordhealth/components/lib/Input'
+
 const heading = 'Sign up'
+const email = ref('')
+const password = ref('')
+const productUpdates = ref(false)
+const passwordVisible = ref(false)
+
+const passwordType = computed(() => passwordVisible.value ? 'text' : 'password')
+const passwordVisibilityLabel = computed(() => passwordVisible.value ? 'Hide password' : 'Show password')
+
+function updateEmail(event: Event) {
+  email.value = (event.currentTarget as NordInput).value
+}
+
+function updatePassword(event: Event) {
+  password.value = (event.currentTarget as NordInput).value
+}
+
+function updateProductUpdates(event: Event) {
+  productUpdates.value = (event.currentTarget as NordCheckbox).checked
+}
 </script>
 
 <template>
@@ -11,6 +34,8 @@ const heading = 'Sign up'
         name="email"
         type="email"
         autocomplete="email"
+        :value="email"
+        @input="updateEmail"
         required
         expand
         size="l"
@@ -19,19 +44,28 @@ const heading = 'Sign up'
         <nord-input
           label="Password"
           name="password"
-          type="password"
+          :type="passwordType"
           autocomplete="new-password"
+          :value="password"
+          @input="updatePassword"
           required
           expand
           size="l"
         />
-        <nord-button class="password-visibility" type="button" variant="default">
-          Show password
+        <nord-button
+          class="password-visibility"
+          type="button"
+          variant="default"
+          @click="passwordVisible = !passwordVisible"
+        >
+          <span>{{ passwordVisibilityLabel }}</span>
         </nord-button>
       </div>
       <nord-checkbox
         name="product-updates"
         label="Receive occasional product updates and announcements."
+        :checked="productUpdates"
+        @change="updateProductUpdates"
       />
       <nord-button type="submit" variant="primary" expand size="l">
         Create account

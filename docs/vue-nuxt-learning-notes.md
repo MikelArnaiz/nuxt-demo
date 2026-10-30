@@ -345,3 +345,118 @@ When explaining this milestone aloud: “The template composes semantic HTML and
 Nord controls. Static attributes configure the controls, while scoped CSS and
 Nord tokens arrange a responsive form. We checked the real browser controls,
 keyboard order, mobile sizing, types, and production build before adding state.”
+
+# Milestone 4: Reactive form state
+
+## Local state and the React comparison
+
+`app/app.vue` now owns email, password, product-updates opt-in, and password
+visibility as local `ref`s. The initial values are empty strings and `false`.
+They belong to the component instance; reloading creates fresh state. There is
+no global store, browser storage, request, or credential logging.
+
+In React, local state might begin with `const [email, setEmail] = useState('')`.
+Vue's equivalent here is `const email = ref('')`. A ref is a reactive container:
+script reads and assignments use `email.value`. `const` prevents replacing the
+container variable, but its `.value` can change. Templates automatically unwrap
+top-level refs, so the template uses `email`, not `email.value`.
+
+React's setter schedules a render with a new state snapshot. In Vue, assigning
+`email.value` changes the reactive value immediately and schedules dependent
+DOM updates. The setup block does not rerun on each edit; Vue tracks the refs
+used by rendering and updates the affected interface. DOM updates are batched,
+so changed state does not imply that the browser DOM is already updated in the
+same synchronous statement.
+
+## Property bindings and events
+
+The email field connects both directions explicitly:
+
+```vue
+<nord-input :value="email" @input="updateEmail" />
+```
+
+`:` abbreviates `v-bind:`: the value is a JavaScript expression rather than the
+literal string `"email"`. `@` abbreviates `v-on:` and registers an event listener.
+The handler reads the Nord host element's public `value` property and assigns
+it to `email.value`. Password uses the same pattern. Nothing trims or transforms
+the password, including its leading or trailing spaces.
+
+This resembles React's `value={email}` plus
+`onChange={event => setEmail(event.currentTarget.value)}` for a controlled input.
+Here, Nord emits a DOM `input` event on each text edit. The checkbox instead
+binds `:checked="productUpdates"` and reads `checked` on `change`: its selection
+is a boolean, not the checkbox's string submission value.
+
+The handler parameter is an ordinary `Event`. TypeScript does not infer a Nord
+element from `currentTarget`, so the handler asserts the specific Nord element
+type. These `import type` declarations disappear from runtime JavaScript.
+`currentTarget` identifies the element where our listener is installed, even
+though Nord's native input lives inside a shadow root. Application code uses
+the public host API rather than reaching into that shadow root.
+
+## Where `v-model` fits
+
+On a native text input, `<input v-model="email">` is shorthand for a value
+binding plus an input listener. Native checkbox `v-model` uses `checked` and
+`change`. On a Vue component, the default contract is `modelValue` with an
+`update:modelValue` event.
+
+Nord controls are custom browser elements with their own property/event APIs.
+In particular, a `nord-checkbox` tag does not automatically select Vue's native
+checkbox model behavior. We use explicit bindings consistently for these three
+fields so the integration is visible and correctly uses `checked`. There is no
+need for a Vue wrapper or custom directive for this small form. See the official
+[form bindings](https://vuejs.org/guide/essentials/forms.html) and
+[custom-element properties](https://vuejs.org/guide/extras/web-components.html#passing-dom-properties)
+guidance for the two different boundaries.
+
+## Derived values and password visibility
+
+`passwordVisible` is the only visibility state. Two `computed` refs derive the
+input type (`password` / `text`) and action label (“Show password” / “Hide
+password”). Computed getters track the refs they read and cache their results
+until those dependencies change. Templates unwrap computed refs too.
+
+In React these small derived expressions would usually be calculated directly
+during rendering; `useMemo` would be unnecessary for such cheap work. Vue's
+`computed` makes the dependency explicit without maintaining additional state.
+Do not create independent mutable refs for the label and type: they could drift
+out of sync with visibility.
+
+The click expression `passwordVisible = !passwordVisible` uses template
+unwrapping to change the boolean ref. Vue updates `:type="passwordType"` and
+the button's text. The existing password input stays mounted, preserving its
+value. `type="button"` keeps this action out of form submission. The label
+describes the next action for both sighted and screen-reader users.
+
+The label lives inside `<span>{{ passwordVisibilityLabel }}</span>`. Nord adds
+a hidden proxy button and Lit marker nodes to its light DOM for form behavior.
+Bare interpolation directly under `nord-button` allowed Vue's text update to
+remove those nodes, producing console errors despite the visible toggle still
+working. A stable span confines Vue's text updates to the content it owns and
+preserves the nodes Nord owns. This is an integration boundary to check in the
+real browser, not something TypeScript can prove.
+
+Application validation and success navigation are still later milestones. The
+form retains `@submit.prevent` and its existing native validity behavior.
+
+## Verification
+
+On 2026-10-30 with Node 24.22.2, `npm run typecheck` and `npm run build` passed.
+Manual browser checks used disposable samples for text edits and checkbox
+selection with pointer and keyboard. Pointer, Enter, and Space all toggled
+password visibility and its action name while retaining the entered values.
+An empty-form visibility toggle kept focus on the button instead of triggering
+native required-field focus. Pointer/Enter submission preserved the form and
+URL. Reload restored empty fields, unchecked opt-in, and a hidden password.
+
+Fresh-page console checks after the stable-span fix showed no application
+warnings or errors; Lit emitted its expected development-mode notice. No
+credential logging was added. A permanent browser suite remains milestone 7.
+
+When explaining this milestone aloud: “Local refs own the form values. Explicit
+property bindings and DOM events connect Nord controls to Vue. Computed values
+keep password type and action text in sync, and a stable label span respects
+the DOM nodes Nord owns. We checked real controls, keyboard behavior, types,
+build output, and console messages before introducing custom validation.”
