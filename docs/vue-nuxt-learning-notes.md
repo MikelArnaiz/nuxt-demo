@@ -480,11 +480,14 @@ it stays true until the component is recreated. A computed value derives the
 current errors:
 
 ```ts
-const errors = computed(() => {
-  if (!submitted.value) return {}
+const validationResults = computed<SignupValidationResult[]>(() => {
+  if (!submitted.value) return []
 
   emailValidator.value = email.value.trim()
-  return validateSignup(email.value, password.value, emailValidator.validity.typeMismatch)
+  return validateSignup(
+    { email: email.value, password: password.value },
+    emailValidator.validity.typeMismatch,
+  )
 })
 ```
 
@@ -512,12 +515,32 @@ never mounted, cannot receive focus, and does not join form submission. Its valu
 is only a temporary validation copy; the code never assigns a trimmed password
 or changes the form state as part of validation.
 
-`app/utils/signup-validation.ts` holds the pure `validateSignup` function. It
-receives strings and the browser's format result and returns an error object.
+`app/utils/signup-validation.ts` exports two pure field validators:
+`getEmailError(value, emailTypeMismatch)` and `getPasswordError(value)`. The email
+validator receives a boolean snapshot of browser `validity.typeMismatch`; Node
+tests can supply `true` or `false`. Both return a message or `null` and have no
+Vue imports, DOM access, input refs, persistence, or side effects.
+
+The utility also exports `SignupFieldName`, `SignupValidationResult`, and the pure
+aggregation function `validateSignup(values, emailTypeMismatch)`. It returns
+`{ name, error }` entries in documented validation priority order: email before
+password. This matches the displayed form. Each `SignupValidationResult` constrains
+`name` to `SignupFieldName = 'email' | 'password'`.
+
+The component owns the computed wrapper and its submission gate. A separate
+`Record<SignupFieldName, TemplateRef<NordInput>>` maps names to refs; TypeScript
+requires every known field name and rejects unknown keys. This keeps input refs
+separate from the pure utility. The component derives the error lookup with
+`Object.fromEntries`, omitting
+entries whose error is `null`. The computed lookup has the explicit type
+`SignupErrors = Partial<Record<SignupFieldName, string>>`, so missing messages
+are `undefined` and misspelled field names are rejected by TypeScript.
+The same `SignupFieldName` type constrains validation names, ref mappings, and
+the error lookup's keys.
 Empty/whitespace-only email takes precedence over format mismatch. Password
 validation checks length directly, so even a single space is nonempty. The
-function has no Vue imports, DOM access, persistence, or side effects. Like a
-plain utility used by a React component, it can be tested independently.
+validators can be tested independently, like plain utilities used by a React
+component.
 
 ## Conditional errors through Nord
 
@@ -537,13 +560,20 @@ with the message; the real browser checks inspected that boundary.
 ## Element refs and two DOM update queues
 
 `useTemplateRef<NordInput>('emailInput')` connects to `ref="emailInput"` in the
-template. Its `.value` is the Nord host element after mount and can be null
+template; password has its own typed ref. Each `.value` is the Nord host element
+after mount and can be null
 before mounting or after unmounting. This resembles React's `useRef` plus a
 `ref` prop, though Vue uses a matching template-ref name and `.value` instead
 of `.current`. A DOM ref grants access to an element; it does not replace the
 separate reactive ref that owns the email string.
 
-Invalid submission chooses the first field with an error, then waits:
+Invalid submission uses `.find()` on the validation array to choose the first
+field with an error, then reads `inputRefs[firstInvalidField.name].value`. This keeps the
+focus helper independent of individual fields and avoids a DOM selector. The
+component owns the computed wrapper and a complete ref mapping; the utility
+produces the result array from values. The submit validity
+check similarly uses `.some()` rather than listing field names. Before focusing,
+the handler waits:
 
 ```ts
 await nextTick()
@@ -593,8 +623,8 @@ References: [Nord Input](https://nordhealth.design/components/input/),
 [HTML email inputs](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/email),
 and [Node TypeScript support](https://nodejs.org/api/typescript.html).
 
-When explaining this milestone aloud: “Submission enables a computed error
-object, and later edits keep it current. Browser validity supplies email rules,
+When explaining this milestone aloud: “Submission enables a computed validation
+array, and later edits keep it current. Browser validity supplies email rules,
 while a pure function selects our messages. Nord renders associated errors, and
 we wait for Vue and Nord to update before focusing the first invalid field.
 Unit tests cover our rules; browser checks cover the real controls.”
@@ -616,8 +646,8 @@ under `app/components`; TypeScript checking verifies their use.
 
 ## Navigate after validation
 
-The form's existing submit handler first enables validation. If neither error
-exists, it now awaits `navigateTo('/success')` and returns. Otherwise, it keeps
+The form's existing submit handler first enables validation. If no validation
+entry has an error, it awaits `navigateTo('/success')` and returns. Otherwise, it keeps
 the existing first-invalid-field focus behavior. Both pointer submission and
 Enter follow this same handler; opt-in does not affect validity.
 

@@ -189,8 +189,8 @@ must not prevent the handler or compete with Nord errors. Keep `required` and
 `type="email"` on Nord inputs for their visible markers, semantics, and input
 behavior. Submit remains enabled.
 
-One local `submitted` ref gates a computed error object. Before submission it is
-empty; afterward it derives errors from current email/password values on each
+One local `submitted` ref gates a computed validation array. Before submission it is
+empty; afterward it derives results from current email/password values on each
 edit. There is no separately synchronized error state or blur-based timing.
 Password visibility and opt-in do not participate in validation.
 
@@ -198,9 +198,22 @@ Nord 5.4.4 does not expose native email validity through its public Input API.
 Use one detached native `input` with `type="email"` to inspect `validity.typeMismatch`
 for a trimmed copy of the email. It never enters the form or DOM. This preserves
 browser email rules without a regex, validation dependency, native popover, or
-application access to Nord's shadow DOM. A pure `validateSignup` function receives
-that mismatch boolean and selects the required/format messages. It checks
-password length directly, without trimming, strength rules, or transformation.
+application access to Nord's shadow DOM. The pure utility `getEmailError` receives
+the email value and a boolean snapshot of `validity.typeMismatch` and selects the
+required/format message. `getPasswordError` checks password length directly,
+without trimming, strength rules, or transformation. Both return `null` for valid
+values and have no knowledge of Vue, Nord, input refs, or form order.
+
+The utility exports `SignupFieldName`, `SignupValidationResult`, and a pure
+`validateSignup(values, emailTypeMismatch)` function that combines the field
+validators into `{ name, error }` entries. Its documented validation priority is
+email before password, matching the displayed form. The shared `SignupFieldName`
+union constrains each entry's name and the keys in the component's `SignupErrors`.
+A separate `Record<SignupFieldName, TemplateRef<NordInput>>` in the component maps names to input
+refs and requires an entry for every known field name. A computed `SignupErrors`
+lookup includes only fields with errors and supplies the template's named messages.
+Unknown validation names, missing ref mappings, and misspelled error keys are
+rejected by TypeScript.
 
 Accept single-label domains such as `person@localhost`, as permitted by HTML
 email-input validation. This also allows `foo@foo`: acceptance is based on
@@ -216,8 +229,12 @@ conditionally exposes its built-in error alert, connects it with
 `aria-describedby`, and marks its native input `aria-invalid`. Reusing this UI
 avoids duplicate error markup or ARIA references across shadow roots.
 
-Typed `useTemplateRef` references identify the Nord host elements. On invalid
-submission, select email before password, await Vue's `nextTick`, then await
+Typed `useTemplateRef` references identify the email and password Nord inputs.
+On invalid submission, find the first validation entry with an error and access
+its input through `inputRefs[firstInvalidField.name].value`. This avoids a DOM
+selector and keeps the focus helper and submit validity check generic. The
+component owns the ref mapping; the field validators handle only values. Keep validation entries
+in displayed form order. Await Vue's `nextTick`, then await
 Nord's `updateComplete` before calling its public `focus()` method. These are
 two rendering systems: Vue first assigns the properties, then Lit renders the
 accessible error. Editing afterward updates errors without moving focus.

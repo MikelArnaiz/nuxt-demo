@@ -1,22 +1,34 @@
-export interface SignupErrors {
-  email?: string
-  password?: string
+export type SignupFieldName = 'email' | 'password'
+
+export type SignupValidationResult = {
+  name: SignupFieldName
+  error: string | null
 }
 
 // The caller supplies the browser's typeMismatch result for the trimmed email.
-// Keep message selection independent of DOM elements and component state.
-export function validateSignup(email: string, password: string, emailTypeMismatch: boolean): SignupErrors {
-  const errors: SignupErrors = {}
-
-  if (!email.trim()) {
-    errors.email = 'Enter your email address.'
-  } else if (emailTypeMismatch) {
-    errors.email = 'Enter a valid email address.'
+export function getEmailError(value: string, emailTypeMismatch: boolean): string | null {
+  if (!value.trim()) {
+    return 'Enter your email address.'
   }
 
-  if (password.length === 0) {
-    errors.password = 'Enter your password.'
+  if (emailTypeMismatch) {
+    return 'Enter a valid email address.'
   }
 
-  return errors
+  return null
+}
+
+export function getPasswordError(value: string): string | null {
+  return value.length === 0 ? 'Enter your password.' : null
+}
+
+export function validateSignup(
+  values: Record<SignupFieldName, string>,
+  emailTypeMismatch: boolean,
+): SignupValidationResult[] {
+  // Validation priority follows the displayed form order: email, then password.
+  return [
+    { name: 'email', error: getEmailError(values.email, emailTypeMismatch) },
+    { name: 'password', error: getPasswordError(values.password) },
+  ]
 }
