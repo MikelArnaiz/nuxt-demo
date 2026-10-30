@@ -317,8 +317,8 @@ reader remains a manual milestone 7 check.
 ## D15. Test real Nord interactions against fresh production output
 
 Milestone 7 pins `@playwright/test` 1.64.1 and uses its matching Chromium as
-the small automated browser baseline. The eight Node validation tests remain
-focused on message selection and password rules. Ten browser tests cover the
+the small automated browser baseline. Four Node validation tests remain
+focused on message selection and password rules. Eight browser tests cover the
 integration between Vue events/reactivity, Nord's native controls, browser
 email validity, and Nuxt navigation without replacing components or mocking
 their behavior. This includes accepting `person@localhost`.
@@ -337,15 +337,25 @@ Keep `npm test` fast; `npm run test:browser` builds and runs the browser suite.
 Use a separate TypeScript project for Playwright's Node-side configuration and
 tests, included in `npm run typecheck`, rather than changing Nuxt's generated
 application types. Ignore generated traces, reports, and screenshots in Git.
-Capture desktop/mobile layout screenshots for human inspection and retain
-failure traces for diagnosis. Test values are disposable; traces can include
-them and should not be recorded with real credentials.
+Retain failure screenshots and traces for diagnosis. Test values are disposable;
+traces can include them and should not be recorded with real credentials.
 
 Assertions for live-region text, roles, and focus establish browser DOM
 behavior. They do not establish screen-reader speech or actual zoom behavior.
 Record those manual limitations and completion steps in
 [browser verification notes](browser-verification.md); leave the milestone's
 manual check open until they are performed. No application fixes were required.
+
+After critical review, reduced the original ten browser/eight unit tests to
+eight browser/four unit tests. Run the full success/privacy/history flow once
+with opt-in selected; the existing single-label-email/Enter case covers opt-in
+off. Keep one narrow-screen overflow test and leave exact CSS values and desktop
+appearance to visual review. Remove duplicate malformed-email examples and the
+unit test claiming to verify reactivity by calling a stateless function repeatedly.
+Single-label email acceptance and live error updates belong in the real browser;
+unit tests cover error selection, password policy, and validation result order.
+This reduces duplicate assertions and maintenance without combining unrelated
+scenarios merely to lower the reported test count.
 
 Checked official Playwright guidance for
 [web-server ownership](https://playwright.dev/docs/test-webserver),

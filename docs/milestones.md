@@ -207,6 +207,17 @@ respond to the zoom shortcut. Live-region DOM assertions do not prove speech.
 [Browser verification notes](browser-verification.md) record the evidence,
 scope, and exact remaining manual steps. Milestone 8 has not been started.
 
+Critical review subsequently trimmed the suite to eight browser tests and four
+unit tests. Removed duplicate success/privacy/history runs, redundant email
+examples and stateless "revalidation" assertions, and exact CSS-value checks.
+The browser suite retains real-control email semantics, both opt-in choices,
+pointer/Enter submission, accessible errors/focus, live correction, reset/history,
+direct success/refresh, route announcements, and 320px overflow. Desktop visual
+evidence above records the original manual pass; current tests no longer save
+passing layout screenshots or assert exact desktop styling.
+All twelve tests, application/test type checking, and the fresh production build
+pass after the trim.
+
 Learn: behavior-oriented tests, Web Component boundaries, and when a browser test
 provides evidence that a unit test cannot. Avoid duplicating every assertion at
 every testing level.

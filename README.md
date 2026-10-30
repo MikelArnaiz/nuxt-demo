@@ -57,7 +57,7 @@ npm run preview
 `npm test` runs focused validation tests using Node's built-in test runner and
 TypeScript support. These test message selection and password rules.
 
-Milestone 7 adds ten Playwright browser tests using actual Nord components:
+Milestone 7 adds eight Playwright browser tests using actual Nord components:
 
 ```sh
 npx playwright install chromium
@@ -69,10 +69,10 @@ The browser command builds the app, starts its production server at
 it deliberately does not reuse a running development server. Each test has an
 isolated browser context. Coverage includes validation and focus, password
 visibility, keyboard controls, `person@localhost`, opt-in choices, route
-announcements, fresh form state, direct success visits/refreshes, and desktop
-and 320px layout. Failures retain screenshots and traces under `test-results/`;
-layout tests also save screenshots for visual inspection. Use disposable test
-values when debugging because traces can contain entered values.
+announcements, fresh form state, direct success visits/refreshes, and 320px
+overflow. Failures retain screenshots and traces under `test-results/`.
+Visual styling is checked manually rather than asserting exact CSS values.
+Use disposable test values when debugging because traces can contain entered values.
 
 `npm run typecheck` checks both the Nuxt application and browser-test TypeScript.
 See [browser verification notes](docs/browser-verification.md) for manual

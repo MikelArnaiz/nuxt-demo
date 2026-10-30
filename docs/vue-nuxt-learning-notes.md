@@ -775,7 +775,7 @@ For example, passing `false` as the email mismatch flag in a unit test only
 proves how our helper uses that flag. Entering `person@localhost` into the real
 form and reaching success proves that the browser and application agree.
 
-The ten Playwright tests run against a fresh production Nuxt build with actual
+The eight Playwright tests run against a fresh production Nuxt build with actual
 Nord custom elements. They use normal fill, click, Tab, Enter, and Space actions.
 Vue's `@input`/`@change` handlers update refs, computed validation updates Nord
 properties, and Nord asynchronously renders its native inputs and errors.
@@ -823,9 +823,9 @@ TypeScript without checking it.
 
 ## Know what automation leaves unproven
 
-The suite checks both routes at desktop and 320px widths and saves screenshots
-for inspection. Geometry assertions detect overflow and width regressions;
-human inspection checks wrapping, visual rhythm, and recognizable focus styling.
+The suite checks both routes at 320px width for horizontal overflow, including
+validation errors. Human inspection checks desktop/mobile wrapping, visual
+rhythm, and recognizable focus styling; failure screenshots help diagnose issues.
 Narrow viewports are reflow evidence, not proof of actual browser zoom.
 
 The route announcer's polite/atomic attributes and changing message can be
@@ -833,8 +833,13 @@ asserted in the DOM. Whether VoiceOver or NVDA speaks the message, and whether
 it is repeated or interrupted, needs a real screen-reader session. Keep those
 limits explicit: [verification notes](browser-verification.md) record the passed
 checks and the remaining zoom/speech steps. The milestone's manual checkbox
-remains open. No app changes were needed after the ten browser tests passed;
-the eight unit tests, application/test type checking, and production build pass.
+remains open. The original ten browser/eight unit tests were trimmed to eight
+browser/four unit tests after review. The full success/privacy/history flow runs
+once; the single-label-email/Enter case covers the other opt-in choice. Repeated
+calls to a pure function do not test Vue reactivity, so live correction is checked
+only in the browser. Exact CSS values are left to visual review. This keeps the
+tests focused on separate failure modes, rather than treating assertion count
+as a measure of confidence.
 
 References: [Playwright web server](https://playwright.dev/docs/test-webserver),
 [shadow-DOM locators](https://playwright.dev/docs/locators#locate-in-shadow-dom),
