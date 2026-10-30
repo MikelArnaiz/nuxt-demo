@@ -239,10 +239,10 @@ email-format validation still applies before the browser dispatches submission.
 ## Verification status
 
 Nord's template types reject an invalid button variant with a TypeScript error.
-The current form still needs browser checks for typing, keyboard order, pointer
-and keyboard submission, preservation of input, and no navigation or email in
-the URL. Check the browser console and run `npm run typecheck` and
-`npm run build` as recorded in the milestone checklist.
+Browser verification was completed against the expanded milestone 3 form:
+keyboard order and pointer/Enter submission were checked, fields stayed
+populated, and the URL stayed unchanged without email in it. Type checking and
+the production build passed; see the milestone 3 verification notes below.
 
 No permanent test suite is included yet. Milestone 7 adds browser coverage for
 the complete sign-up flow.
@@ -260,3 +260,88 @@ checked on 2026-10-30, plus the installed packages' exports and declarations.
   Connecting application state is a later milestone.
 - Why a client plugin? It gives the browser registrations a clear, shared startup
   location before Vue mounts, even as the app later gains multiple pages.
+
+# Milestone 3: Static sign-up page
+
+## What changed and why
+
+`app/app.vue` now contains the complete static form: required Email and Password
+inputs, a secondary “Show password” button, an optional product-updates checkbox,
+and a primary “Create account” button. The page starts with a centered heading
+on a white background. Its desktop form is 470px wide and shrinks on mobile.
+Checkbox is registered in the existing client plugin because it is now used.
+
+The form remains in one component: there is no repeated field pattern that
+needs a shared component yet. Vue does not hold the field values in application
+state. Like uncontrolled React inputs, Nord's controls manage their own current
+values. The visibility button is intentionally static at this milestone;
+reactive state and toggling are milestone 4's work.
+
+## Templates and semantic HTML
+
+Vue templates look like HTML. Unlike JSX's `className`, use `class` for CSS
+classes. Literal attributes such as `label="Password"` and `size="l"` select
+fixed component properties. Boolean attributes such as `required` and `expand`
+enable those options through Nord's attribute APIs. Do not write
+`required="false"` to disable a boolean attribute: its presence enables it.
+Dynamic values will use Vue's `:` binding syntax in a later milestone.
+
+HTML still supplies the page structure: `main` is the primary landmark, `h1`
+names the page, and `form` groups the controls. The Nord labels name their
+internal inputs, and `required` supplies visible markers and native required
+semantics. `autocomplete="email"` and `autocomplete="new-password"` tell the
+browser how to help fill the fields; they do not store values in Vue state.
+
+`type="button"` on the visibility control explicitly separates its action from
+form submission. `type="submit"` on Create account participates in normal form
+submission, including Enter from a text field. `@submit.prevent` continues to
+cancel native navigation. Native required/email validity still applies for now;
+milestone 5 will choose application validation ownership explicitly.
+
+Composition here means combining ordinary HTML and existing Nord elements.
+The password input and visibility button share a small layout `div`, without a
+wrapper component or a separate state abstraction. Their document order also
+gives the intended keyboard order without adding `tabindex` values.
+
+## Layout styles and the Web Component boundary
+
+Nord's `n-reset` class opts the main content into its typography and box-sizing
+rules. Importing the stylesheet alone does not apply that class. Nord's spacing,
+type, and color tokens keep the page consistent with its controls. The inputs
+and submit button use the supported `expand` attribute instead of reaching into
+their shadow roots. Large controls give the primary fields and action room.
+
+The scoped CSS controls page layout: a grid spaces form items, a smaller grid
+groups the password controls, and `justify-self: end` aligns the visibility
+button. `max-inline-size` caps the content at 470px plus side padding, while
+normal block sizing lets it become narrower on mobile. `margin-inline: auto`
+centers it. Logical properties describe inline and block axes rather than
+hard-coding left/right positioning.
+
+This has the same separation of concerns as composing React components with
+local CSS: the page owns arrangement, and the design system owns the controls.
+Vue's scoped selectors are rewritten with component attributes; they do not
+penetrate shadow roots. `:global(body)` deliberately applies only the page's
+body margin and background globally, outside that scoped selector rewriting.
+
+## Verification
+
+On 2026-10-30, using Node 24.22.2, `npm run typecheck` and `npm run build` passed.
+Browser measurements confirmed 470px desktop form, input, and submit widths.
+At 320 CSS pixels, the form measured 272px with 24px padding on either side,
+and the page had no horizontal overflow. The checkbox label wrapped normally.
+
+Keyboard checks followed Email → Password → Show password → product updates →
+Create account; Nord's focus styling remained visible. The initial form showed
+required markers, empty fields, a masked password input, and an unchecked opt-in.
+The internal inputs received the expected autocomplete hints. Pointer and Enter
+submission with disposable sample values kept the form populated on the same
+URL. Console inspection showed only Lit's expected development-mode notice.
+
+These checks establish the static page and integration. They do not verify
+password toggling, custom errors, or success navigation, which are later work.
+
+When explaining this milestone aloud: “The template composes semantic HTML and
+Nord controls. Static attributes configure the controls, while scoped CSS and
+Nord tokens arrange a responsive form. We checked the real browser controls,
+keyboard order, mobile sizing, types, and production build before adding state.”

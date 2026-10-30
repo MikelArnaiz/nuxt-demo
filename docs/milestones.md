@@ -40,7 +40,7 @@ Learn: Nuxt's role, configuration, entry point, single-file components, and
   input and a “Create account” submit button.
 - [x] Configure custom-element recognition and template types.
 - [x] Verify Nord component rendering and template types.
-- [ ] Verify the current submit form in the browser and run type checking
+- [x] Verify the current submit form in the browser and run type checking
   and the production build.
 
 The `signup-form` contains an Email input using `type="email"` and
@@ -51,10 +51,11 @@ The input retains native email-format validation; custom validation remains
 milestone 5.
 
 Nord template typing has been verified by checking that an invalid button
-variant produces a TypeScript error. Browser verification of the current form
-is pending: check pointer and keyboard submission, preservation of the entered
-value, absence of navigation or email in the URL, and console warnings/errors.
-Run `npm run typecheck` and `npm run build` to complete verification.
+variant produces a TypeScript error. The completed milestone 3 form was checked
+on 2026-10-30: pointer and Enter submission left fields populated and the URL
+unchanged, without email in the URL. No application warnings or errors appeared;
+Lit reports its expected development-mode notice. `npm run typecheck` and
+`npm run build` passed using Node 24.22.2.
 Decision D10 records the integration choices.
 
 Learn: Web Components versus Vue components, registration, compiler configuration,
@@ -62,13 +63,22 @@ CSS imports, and template typing. Check current official guidance before setup.
 
 ## 3. Static sign-up page
 
-- [ ] Build the complete form using the specified labels, controls, and hints.
-- [ ] Adapt the careers sign-in layout: white page, centered “Sign up” heading,
+- [x] Build the complete form using the specified labels, controls, and hints.
+- [x] Adapt the careers sign-in layout: white page, centered “Sign up” heading,
   approximately 470px content column, generous whitespace, and no form card.
   Start with the heading, without a logo, header, or reserved header space.
-- [ ] Use Nord controls and tokens with left-aligned field labels and full-width
+- [x] Use Nord controls and tokens with left-aligned field labels and full-width
   inputs and primary submit button, following the spec's visual direction.
-- [ ] Inspect mobile/desktop presentation and keyboard order.
+- [x] Inspect mobile/desktop presentation and keyboard order.
+
+Verified on 2026-10-30 using Node 24.22.2: type checking and production build
+passed. Browser inspection confirmed a 470px desktop form, matching input and
+submit widths, and no horizontal overflow at 320 CSS pixels (272px form plus
+24px side padding). Required markers, masked password, autocomplete hints, and
+an initially unchecked checkbox were checked. Tab order is Email → Password →
+Show password → product updates → Create account, with Nord focus styling.
+The visibility button is static until milestone 4; custom validation and
+navigation remain in milestones 5 and 6. Decision D11 records layout choices.
 
 Learn: templates, attributes, semantic HTML, composition, and styling. Application
 state, custom validation, and navigation are introduced in later milestones.

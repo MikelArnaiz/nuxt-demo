@@ -13,10 +13,14 @@ Registration is simulated locally; no account is created.
 
 ## Current status
 
-Milestone 2 integrates Nord styles and Web Components. The page displays
-“Sign up”, an Email input, and a “Create account” submit button. Native submission
-is prevented; account creation and navigation are not implemented yet. The full sign-up form
-comes in later milestones.
+Milestone 3 completes the static sign-up page: required Email and Password inputs,
+a “Show password” button, an optional product-updates checkbox, and a full-width
+“Create account” button. The white page uses a centered heading and a responsive
+470px content column, without a header or form card.
+
+Native submission is prevented. The visibility button is present but its toggle
+behavior and reactive form state arrive in milestone 4. Custom validation and
+success navigation follow in milestones 5 and 6; no account is created.
 
 ## Setup and development
 

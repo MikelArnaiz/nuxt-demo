@@ -117,3 +117,30 @@ account or navigate yet. Reactive state, application validation, and success
 navigation remain in their planned milestones. The email input currently keeps
 its native format validation; validation ownership will be implemented explicitly
 in milestone 5.
+
+## D11. Compose the static page with standalone Nord controls
+
+Milestone 3 keeps the form in `app/app.vue` and registers Checkbox alongside
+Input and Button in the client plugin. The controls use their built-in labels
+and required indicators. Email and password forward `email` and `new-password`
+autocomplete hints to their native inputs. No additional hint copy or password
+policy is specified, so none is invented.
+
+Use Nord's public `expand` and large-size APIs for the inputs and primary
+button. The secondary visibility button uses Nord's `default` variant and
+explicit `type="button"` so it cannot submit the form. Place it below the
+password input, aligned to the end, preserving full input width on mobile.
+Its click behavior belongs to milestone 4.
+
+Apply Nord's `n-reset` typography to the main landmark, a white surface token
+to the body, and scoped layout styles using logical CSS properties and spacing
+tokens. The main column allows 470px of content plus 24px padding on each side;
+normal block sizing lets it shrink with the viewport. No fixed height, header
+space, card, component-internal overrides, or layout dependency is needed.
+
+Checked the official [Input](https://nordhealth.design/components/input/),
+[Checkbox](https://nordhealth.design/components/checkbox/), and
+[Button](https://nordhealth.design/components/button/) documentation on
+2026-10-30, and confirmed the selected APIs in the installed 5.4.4 declarations.
+The current documentation also describes newer Field composition; standalone
+labels meet this form's needs without introducing another abstraction.
