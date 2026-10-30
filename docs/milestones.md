@@ -182,13 +182,30 @@ Document any static-host fallback needed for direct route access.
 
 ## 7. Browser verification
 
-- [ ] Add a small browser suite covering the core acceptance scenarios.
-- [ ] Exercise actual Nord components rather than replacing them with test doubles.
-- [ ] Include `person@localhost` as an accepted single-label email in the browser suite.
+- [x] Add a small browser suite covering the core acceptance scenarios.
+- [x] Exercise actual Nord components rather than replacing them with test doubles.
+- [x] Include `person@localhost` as an accepted single-label email in the browser suite.
 - [ ] Manually inspect keyboard use, errors, focus, zoom, and responsive layout.
-- [ ] Check both routes against the visual acceptance criteria, allowing Nord
+- [x] Check both routes against the visual acceptance criteria, allowing Nord
   component styling to take precedence over exact matching of the reference.
-- [ ] Run type checking, tests, and the production build; fix discovered issues.
+- [x] Run type checking, tests, and the production build; fix discovered issues.
+
+Implemented and verified on 2026-10-30 with Node 24.22.2: all ten Chromium
+browser tests and eight focused validation tests pass, along with application
+and browser-test type checking and the production build. The suite builds and
+serves production output, uses real Nord controls, and includes keyboard and
+pointer interaction, error associations/focus, accepted `person@localhost`,
+opt-in choices, route announcements, direct routes, refreshes, history, fresh
+state, data-handling checks, and desktop/320px layout. No application changes
+were needed. Decision D15 records the test tooling choices.
+
+Manual keyboard, errors, focus styling, both routes' presentation, the careers
+reference, and desktop/320px screenshots were inspected. The manual checkbox
+remains open for actual browser zoom and spoken screen-reader output. Native
+Chrome control lacked computer-use permission; the in-app browser did not
+respond to the zoom shortcut. Live-region DOM assertions do not prove speech.
+[Browser verification notes](browser-verification.md) record the evidence,
+scope, and exact remaining manual steps. Milestone 8 has not been started.
 
 Learn: behavior-oriented tests, Web Component boundaries, and when a browser test
 provides evidence that a unit test cannot. Avoid duplicating every assertion at

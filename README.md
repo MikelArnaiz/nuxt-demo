@@ -13,7 +13,7 @@ Registration is simulated locally; no account is created.
 
 ## Current status
 
-Milestone 6 adds the `/success` route after valid submission and a return link
+The `/success` route follows valid submission and has a return link
 to a fresh sign-up form. Both routes share layout and typography, have meaningful
 page titles, and announce title changes through a visually hidden polite live
 region without moving focus to headings. Direct success visits and refreshes
@@ -55,9 +55,28 @@ npm run preview
 ```
 
 `npm test` runs focused validation tests using Node's built-in test runner and
-TypeScript support, with no additional test dependency. These test message
-selection and password rules; browser email semantics and real Nord interactions
-were checked manually. A permanent browser suite follows in milestone 7.
+TypeScript support. These test message selection and password rules.
+
+Milestone 7 adds ten Playwright browser tests using actual Nord components:
+
+```sh
+npx playwright install chromium
+npm run test:browser
+```
+
+The browser command builds the app, starts its production server at
+`http://127.0.0.1:4173`, runs Chromium, and stops the server. Keep that port free;
+it deliberately does not reuse a running development server. Each test has an
+isolated browser context. Coverage includes validation and focus, password
+visibility, keyboard controls, `person@localhost`, opt-in choices, route
+announcements, fresh form state, direct success visits/refreshes, and desktop
+and 320px layout. Failures retain screenshots and traces under `test-results/`;
+layout tests also save screenshots for visual inspection. Use disposable test
+values when debugging because traces can contain entered values.
+
+`npm run typecheck` checks both the Nuxt application and browser-test TypeScript.
+See [browser verification notes](docs/browser-verification.md) for manual
+evidence and outstanding zoom/screen-reader checks.
 
 Run type checking separately from the build. `preview` serves the production
 build locally; output is in `.output/`.

@@ -10,8 +10,9 @@
     "build": "nuxt build",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "typecheck": "nuxt typecheck",
-    "test": "node --test tests/*.test.ts"
+    "typecheck": "nuxt typecheck && tsc --project tsconfig.browser.json",
+    "test": "node --test tests/*.test.ts",
+    "test:browser": "playwright test"
   },
   "dependencies": {
     "@nordhealth/components": "5.4.4",
@@ -20,6 +21,7 @@
     "vue": "3.5.44"
   },
   "devDependencies": {
+    "@playwright/test": "1.64.1",
     "typescript": "5.9.3",
     "vue-tsc": "3.3.14"
   }

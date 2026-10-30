@@ -313,3 +313,41 @@ left focus on the document; headings have no `tabindex` or visible outline.
 Tab reached Email or the return link, and invalid submission still focused
 Email. Live-region DOM updates were verified; spoken output with a screen
 reader remains a manual milestone 7 check.
+
+## D15. Test real Nord interactions against fresh production output
+
+Milestone 7 pins `@playwright/test` 1.64.1 and uses its matching Chromium as
+the small automated browser baseline. The eight Node validation tests remain
+focused on message selection and password rules. Ten browser tests cover the
+integration between Vue events/reactivity, Nord's native controls, browser
+email validity, and Nuxt navigation without replacing components or mocking
+their behavior. This includes accepting `person@localhost`.
+
+Playwright owns a production build/server on a dedicated loopback port (4173)
+and refuses to reuse an existing server. This prevents a development instance
+or stale build from silently supplying test evidence. Use two workers, isolated
+browser contexts, no retries, and assertions that wait for observable DOM
+state instead of fixed sleeps. Check production browser warnings and errors
+in an automatic per-test fixture. Use accessible roles/names where possible;
+the password input has no implicit textbox role, so scope its input selector
+to its Nord host. Open shadow roots are traversed by Playwright's locators.
+The app does not need test-only attributes, public methods, or wrapper components.
+
+Keep `npm test` fast; `npm run test:browser` builds and runs the browser suite.
+Use a separate TypeScript project for Playwright's Node-side configuration and
+tests, included in `npm run typecheck`, rather than changing Nuxt's generated
+application types. Ignore generated traces, reports, and screenshots in Git.
+Capture desktop/mobile layout screenshots for human inspection and retain
+failure traces for diagnosis. Test values are disposable; traces can include
+them and should not be recorded with real credentials.
+
+Assertions for live-region text, roles, and focus establish browser DOM
+behavior. They do not establish screen-reader speech or actual zoom behavior.
+Record those manual limitations and completion steps in
+[browser verification notes](browser-verification.md); leave the milestone's
+manual check open until they are performed. No application fixes were required.
+
+Checked official Playwright guidance for
+[web-server ownership](https://playwright.dev/docs/test-webserver),
+[shadow-DOM locators](https://playwright.dev/docs/locators#locate-in-shadow-dom),
+and [browser projects](https://playwright.dev/docs/test-projects).

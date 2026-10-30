@@ -763,3 +763,85 @@ its local state. A shared shell keeps layout and titles consistent, while the
 root announces title changes without moving focus. Returning mounts a fresh
 form; direct routes also need server or
 static-host fallback support.”
+
+# Milestone 7: browser verification
+
+## Test the behavior across framework and Web Component boundaries
+
+`npm test` still tests the pure validation helpers with Node. It proves message
+selection and password rules, but it cannot prove browser email semantics,
+Nord's accessible error associations, native Enter submission, focus, or routing.
+For example, passing `false` as the email mismatch flag in a unit test only
+proves how our helper uses that flag. Entering `person@localhost` into the real
+form and reaching success proves that the browser and application agree.
+
+The ten Playwright tests run against a fresh production Nuxt build with actual
+Nord custom elements. They use normal fill, click, Tab, Enter, and Space actions.
+Vue's `@input`/`@change` handlers update refs, computed validation updates Nord
+properties, and Nord asynchronously renders its native inputs and errors.
+Assertions such as `toHaveAccessibleDescription` and `toBeFocused` wait for the
+observable result; tests do not call the Vue submit function or add sleeps for
+Vue's `nextTick` or Lit's `updateComplete`.
+
+In React, the same test would exercise an input event through a state setter
+and rerender. A useful browser test describes what the person does and sees,
+so it need not change if an internal ref/computed implementation changes.
+Avoid asserting each reactive assignment or repeating every unit-test case.
+The unit and browser suites answer different questions.
+
+## Cross open shadow roots without replacing Nord
+
+Nord custom elements own shadow DOM. Most Playwright locators traverse open
+shadow roots, so roles and accessible names find the actual email input,
+checkbox, and buttons. A password input has no implicit textbox role; its
+locator scopes a native `input` to `nord-input[name="password"]` instead.
+This small integration-specific selector is preferable to replacing the Nord
+input with a plain input that would hide registration, event, label, and focus
+problems. The same boundary applies to Web Components used in React.
+
+`toHaveAccessibleDescription` checks that the field actually references its
+error, not just that an error string exists somewhere on the page. Fresh-form
+assertions after the return link and browser history verify that Nuxt unmounted
+the old route's local state. Title/live-region assertions verify the persistent
+root announcer separately from the routed page.
+
+## Own the server, isolate the browser, and type-check the tests
+
+`playwright.config.ts` defines a dedicated production server on port 4173.
+`npm run test:browser` builds before starting it and refuses an occupied port,
+so a passing run cannot accidentally test a different running development app.
+Playwright stops the server when the run finishes. Each test gets a fresh
+browser context, avoiding dependence on another test's storage or history.
+An automatic fixture collects production warnings/errors for each test.
+
+The browser test code runs in Node while the application runs in the browser.
+`tsconfig.browser.json` checks the test/configuration files separately from
+Nuxt's generated app project; `npm run typecheck` runs both checks. Playwright
+transpiles TypeScript for execution but does not replace static type checking.
+The distinction is the same for a React app built with a tool that transpiles
+TypeScript without checking it.
+
+## Know what automation leaves unproven
+
+The suite checks both routes at desktop and 320px widths and saves screenshots
+for inspection. Geometry assertions detect overflow and width regressions;
+human inspection checks wrapping, visual rhythm, and recognizable focus styling.
+Narrow viewports are reflow evidence, not proof of actual browser zoom.
+
+The route announcer's polite/atomic attributes and changing message can be
+asserted in the DOM. Whether VoiceOver or NVDA speaks the message, and whether
+it is repeated or interrupted, needs a real screen-reader session. Keep those
+limits explicit: [verification notes](browser-verification.md) record the passed
+checks and the remaining zoom/speech steps. The milestone's manual checkbox
+remains open. No app changes were needed after the ten browser tests passed;
+the eight unit tests, application/test type checking, and production build pass.
+
+References: [Playwright web server](https://playwright.dev/docs/test-webserver),
+[shadow-DOM locators](https://playwright.dev/docs/locators#locate-in-shadow-dom),
+and [projects](https://playwright.dev/docs/test-projects).
+
+When explaining this milestone aloud: “Unit tests check the pure validation
+rules. Browser tests exercise Vue, real Nord controls, and Nuxt navigation
+together against production output. Waiting for user-visible outcomes keeps
+the tests independent of framework scheduling, while zoom and spoken
+screen-reader behavior still need manual evidence.”
