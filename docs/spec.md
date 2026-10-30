@@ -32,7 +32,7 @@ they are not additional requirements supplied by the employer.
 
 ### Sign-up: `/`
 
-- Heading: “Create your account”.
+- Heading: “Sign up”.
 - Email input, visibly labelled “Email” and marked required.
 - Password input, visibly labelled “Password” and marked required.
 - Password visibility control labelled “Show password” or “Hide password”.
@@ -86,6 +86,30 @@ consequence of not inventing a password policy.
 Enter in a form input submits through normal form behavior. Toggling password
 visibility preserves the value and does not submit or validate the form.
 
+## Visual direction
+
+Use [Nordhealth's careers sign-in page](https://careers.nordhealth.com/connect/login)
+as the visual reference for the centered heading, narrow form,
+whitespace, and primary-action placement. Implement the form with Nord Design
+System components and tokens, prioritizing their supported styling and accessible
+behavior over exact reproduction of Teamtailor controls.
+
+- Use a white page with generous whitespace and no enclosing form card.
+- Start the page content with the heading; do not add a logo or header, or reserve
+  empty space for the reference's header.
+- Center a single content column, approximately 470 CSS pixels wide on desktop.
+  Let it shrink on smaller screens with comfortable side padding.
+- Center the primary heading above the form. Keep field labels left-aligned,
+  required indicators visible, and inputs and the submit button full-width.
+- Use Nord inputs, a Nord checkbox for product updates, a Nord primary submit
+  button, and a secondary Nord button for password visibility.
+- Follow the reference's dark heading, blue primary action, and spacious rhythm
+  using Nord typography, spacing, colors, and supported component sizes. Small
+  visual differences from the reference are acceptable; use public styling APIs.
+- Reuse the content width, typography, and spacing on `/success`.
+- Keep the submit label “Create account”. The reference's social-login section,
+  home shortcut, and account-switching link are not part of this demo.
+
 ## Accessibility and presentation
 
 - Use Nord controls, public component APIs, and design tokens appropriately.
@@ -131,6 +155,9 @@ management, and a custom component library.
 - [ ] Success direct visits and refreshes work without personal data or stored state.
 - [ ] Returning to sign-up starts a fresh form.
 - [ ] Keyboard order, focus visibility, labels, error associations, and navigation focus work.
+- [ ] Sign-up displays a centered “Sign up” heading on a white page without a header, logo, or form card.
+- [ ] Desktop content is approximately 470 CSS pixels wide, with left-aligned field labels and full-width inputs and submit button.
+- [ ] Both routes use consistent typography, content width, and spacing, with Nord controls and tokens taking precedence over exact visual matching.
 - [ ] Narrow-screen and zoom checks reveal no inaccessible content or horizontal overflow.
 - [ ] Credentials are never persisted, transmitted, or logged by application code.
 - [ ] Type checking, focused automated tests, and production build pass.

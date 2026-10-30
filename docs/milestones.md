@@ -37,7 +37,11 @@ CSS imports, and template typing. Check current official guidance before setup.
 ## 3. Static sign-up page
 
 - [ ] Build the complete form using the specified labels, controls, and hints.
-- [ ] Apply Nord tokens and a responsive layout.
+- [ ] Adapt the careers sign-in layout: white page, centered “Sign up” heading,
+  approximately 470px content column, generous whitespace, and no form card.
+  Start with the heading, without a logo, header, or reserved header space.
+- [ ] Use Nord controls and tokens with left-aligned field labels and full-width
+  inputs and primary submit button, following the spec's visual direction.
 - [ ] Inspect mobile/desktop presentation and keyboard order.
 
 Learn: templates, attributes, semantic HTML, composition, and styling. Application
@@ -66,6 +70,7 @@ and application errors do not compete.
 ## 6. Success navigation
 
 - [ ] Add `/success` and navigate only after valid submission.
+- [ ] Reuse the content width, typography, and spacing from sign-up, without a logo or header.
 - [ ] Add the return link, page titles, and navigation focus behavior.
 - [ ] Verify direct visits, refreshes, browser back, and fresh form state.
 
@@ -77,6 +82,8 @@ Document any static-host fallback needed for direct route access.
 - [ ] Add a small browser suite covering the core acceptance scenarios.
 - [ ] Exercise actual Nord components rather than replacing them with test doubles.
 - [ ] Manually inspect keyboard use, errors, focus, zoom, and responsive layout.
+- [ ] Check both routes against the visual acceptance criteria, allowing Nord
+  component styling to take precedence over exact matching of the reference.
 - [ ] Run type checking, tests, and the production build; fix discovered issues.
 
 Learn: behavior-oriented tests, Web Component boundaries, and when a browser test
