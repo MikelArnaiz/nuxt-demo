@@ -1,6 +1,10 @@
 export default defineNuxtConfig({
   compatibilityDate: '2026-10-30',
   ssr: false,
+  modules: ['@nuxt/eslint'],
+  eslint: {
+    config: { stylistic: false },
+  },
   app: {
     head: { htmlAttrs: { lang: 'en' } },
   },
@@ -8,7 +12,7 @@ export default defineNuxtConfig({
   css: ['@nordhealth/css'],
   vue: {
     compilerOptions: {
-      isCustomElement: tag => tag.startsWith('nord-'),
+      isCustomElement: (tag) => tag.startsWith('nord-'),
     },
   },
 })

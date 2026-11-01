@@ -2,7 +2,11 @@
 import { computed, nextTick, ref, useTemplateRef, type TemplateRef } from 'vue'
 import type NordCheckbox from '@nordhealth/components/lib/Checkbox'
 import type NordInput from '@nordhealth/components/lib/Input'
-import { validateSignup, type SignupFieldName, type SignupValidationResult } from '../utils/signup-validation'
+import {
+  validateSignup,
+  type SignupFieldName,
+  type SignupValidationResult,
+} from '../utils/signup-validation'
 
 type SignupErrors = Partial<Record<SignupFieldName, string>>
 
@@ -19,13 +23,12 @@ const inputRefs: Record<SignupFieldName, TemplateRef<NordInput>> = {
   password: passwordInput,
 }
 
-// Use the browser's email rules without depending on Nord's shadow DOM.
-const emailValidator = document.createElement('input')
-emailValidator.type = 'email'
-
 const validationResults = computed<SignupValidationResult[]>(() => {
   if (!submitted.value) return []
 
+  // Keep the browser validator local so this computed value has no side effects.
+  const emailValidator = document.createElement('input')
+  emailValidator.type = 'email'
   emailValidator.value = email.value.trim()
   return validateSignup(
     { email: email.value, password: password.value },
@@ -34,7 +37,7 @@ const validationResults = computed<SignupValidationResult[]>(() => {
 })
 
 function getFirstInvalidInput(): NordInput | null {
-  const firstInvalidField = validationResults.value.find(field => field.error)
+  const firstInvalidField = validationResults.value.find((field) => field.error)
   if (!firstInvalidField) {
     return null
   } else {
@@ -43,12 +46,20 @@ function getFirstInvalidInput(): NordInput | null {
   }
 }
 
-const errors = computed<SignupErrors>(() => Object.fromEntries(
-  validationResults.value.flatMap(({ name, error }) => error === null ? [] : [[name, error] as const]),
-))
+const errors = computed<SignupErrors>(() =>
+  Object.fromEntries(
+    validationResults.value.flatMap(({ name, error }) =>
+      error === null ? [] : [[name, error] as const],
+    ),
+  ),
+)
 
-const passwordType = computed(() => passwordVisible.value ? 'text' : 'password')
-const passwordVisibilityLabel = computed(() => passwordVisible.value ? 'Hide password' : 'Show password')
+const passwordType = computed(() =>
+  passwordVisible.value ? 'text' : 'password',
+)
+const passwordVisibilityLabel = computed(() =>
+  passwordVisible.value ? 'Hide password' : 'Show password',
+)
 
 function updateEmail(event: Event) {
   email.value = (event.currentTarget as NordInput).value
@@ -64,7 +75,7 @@ function updateProductUpdates(event: Event) {
 
 async function submit() {
   submitted.value = true
-  if (!validationResults.value.some(field => field.error)) {
+  if (!validationResults.value.some((field) => field.error)) {
     await navigateTo('/success')
     return
   }
@@ -120,7 +131,9 @@ async function submit() {
           <span>
             <nord-icon v-if="passwordVisible" name="interface-edit-off" />
             <nord-icon v-else name="interface-edit-on" />
-            <nord-visually-hidden>{{ passwordVisibilityLabel }}</nord-visually-hidden>
+            <nord-visually-hidden>{{
+              passwordVisibilityLabel
+            }}</nord-visually-hidden>
           </span>
         </nord-button>
       </nord-input>

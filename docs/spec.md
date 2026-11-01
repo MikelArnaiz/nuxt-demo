@@ -55,12 +55,12 @@ the link or browser history starts with fresh application state.
 
 ## Form state and rules
 
-| Field or control | Initial state | Rule |
-| --- | --- | --- |
-| Email | Empty | Required; validate format after ignoring surrounding whitespace. |
-| Password | Empty and hidden | Required; accept any nonempty value without trimming or transforming it. |
-| Product updates | Unchecked | Optional; either value permits submission. |
-| Submit button | Enabled | Remains enabled for invalid values so submission can explain errors. |
+| Field or control | Initial state    | Rule                                                                     |
+| ---------------- | ---------------- | ------------------------------------------------------------------------ |
+| Email            | Empty            | Required; validate format after ignoring surrounding whitespace.         |
+| Password         | Empty and hidden | Required; accept any nonempty value without trimming or transforming it. |
+| Product updates  | Unchecked        | Optional; either value permits submission.                               |
+| Submit button    | Enabled          | Remains enabled for invalid values so submission can explain errors.     |
 
 Email format validation follows standard HTML email-input validity semantics,
 without a custom restrictive regular expression or deliverability checks.
@@ -83,11 +83,11 @@ consequence of not inventing a password policy.
    disappear when corrected and appear when a field becomes invalid again.
 5. If valid, navigate to `/success` regardless of the product-updates choice.
 
-| Condition | Error text |
-| --- | --- |
-| Email missing | Enter your email address. |
+| Condition       | Error text                   |
+| --------------- | ---------------------------- |
+| Email missing   | Enter your email address.    |
 | Email malformed | Enter a valid email address. |
-| Password empty | Enter your password. |
+| Password empty  | Enter your password.         |
 
 Enter in a form input submits through normal form behavior. Toggling password
 visibility preserves the value and does not submit or validate the form.

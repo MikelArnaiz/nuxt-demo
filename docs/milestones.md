@@ -37,11 +37,11 @@ Learn: Nuxt's role, configuration, entry point, single-file components, and
 ## 2. Nord integration
 
 - [x] Add Nord styles and components for a minimal sign-up form with an Email
-  input and a “Create account” submit button.
+      input and a “Create account” submit button.
 - [x] Configure custom-element recognition and template types.
 - [x] Verify Nord component rendering and template types.
 - [x] Verify the current submit form in the browser and run type checking
-  and the production build.
+      and the production build.
 
 The `signup-form` contains an Email input using `type="email"` and
 `autocomplete="email"`, and a “Create account” submit button.
@@ -65,10 +65,10 @@ CSS imports, and template typing. Check current official guidance before setup.
 
 - [x] Build the complete form using the specified labels, controls, and hints.
 - [x] Adapt the careers sign-in layout: white page, centered “Sign up” heading,
-  approximately 470px content column, generous whitespace, and no form card.
-  Start with the heading, without a logo, header, or reserved header space.
+      approximately 470px content column, generous whitespace, and no form card.
+      Start with the heading, without a logo, header, or reserved header space.
 - [x] Use Nord controls and tokens with left-aligned field labels and full-width
-  inputs and primary submit button, following the spec's visual direction.
+      inputs and primary submit button, following the spec's visual direction.
 - [x] Inspect mobile/desktop presentation and keyboard order.
 
 Verified on 2026-10-30 using Node 24.22.2: type checking and production build
@@ -187,9 +187,9 @@ Document any static-host fallback needed for direct route access.
 - [x] Include `person@localhost` as an accepted single-label email in the browser suite.
 - [x] Manually inspect keyboard use, errors, focus, and responsive layout.
 - [ ] Complete actual browser zoom and spoken screen-reader checks recorded in
-  the browser verification notes.
+      the browser verification notes.
 - [x] Check both routes against the visual acceptance criteria, allowing Nord
-  component styling to take precedence over exact matching of the reference.
+      component styling to take precedence over exact matching of the reference.
 - [x] Run type checking, tests, and the production build; fix discovered issues.
 
 Implemented and verified on 2026-10-30 with Node 24.22.2: all ten Chromium
@@ -207,7 +207,7 @@ remains open for actual browser zoom and spoken screen-reader output. Native
 Chrome control lacked computer-use permission; the in-app browser did not
 respond to the zoom shortcut. Live-region DOM assertions do not prove speech.
 [Browser verification notes](browser-verification.md) record the evidence,
-scope, and exact remaining manual steps. Submission preparation (now milestone 10)
+scope, and exact remaining manual steps. Submission preparation (now milestone 11)
 has not been started.
 
 Critical review subsequently trimmed the suite to eight browser tests and four
@@ -228,25 +228,25 @@ every testing level.
 ## 8. Form presentation improvements
 
 - [x] Add the email placeholder “e.g. name@example.com”, keeping the visible Email
-  label and the initially empty value.
+      label and the initially empty value.
 - [x] Vertically center each page's heading and content together within the viewport,
-  following [Nordhealth's careers sign-in page](https://careers.nordhealth.com/connect/login).
-  Keep comfortable page padding and allow scrolling when content exceeds the
-  available height, including on short screens, with errors, or at browser zoom.
+      following [Nordhealth's careers sign-in page](https://careers.nordhealth.com/connect/login).
+      Keep comfortable page padding and allow scrolling when content exceeds the
+      available height, including on short screens, with errors, or at browser zoom.
 - [x] Replace the current separate “Show password” / “Hide password” button with
-  a square custom Nord button inside the password input's `end` slot, following
-  [Nord's custom button example](https://nordhealth.design/components/input/#custom-button).
+      a square custom Nord button inside the password input's `end` slot, following
+      [Nord's custom button example](https://nordhealth.design/components/input/#custom-button).
 - [x] Conditionally render `nord-icon` with `name="interface-edit-on"` or
-  `name="interface-edit-off"` according to password visibility; show only the
-  icon for the current action.
+      `name="interface-edit-off"` according to password visibility; show only the
+      icon for the current action.
 - [x] Keep an accessible action name that switches between “Show password” and
-  “Hide password”, plus a matching tooltip. Keep `type="button"`, keyboard
-  access, and visible focus styling.
+      “Hide password”, plus a matching tooltip. Keep `type="button"`, keyboard
+      access, and visible focus styling.
 - [x] Preserve the entered password and existing validation behavior when
-  toggling; update affected browser checks for the inline icon button.
+      toggling; update affected browser checks for the inline icon button.
 - [x] Verify pointer, Enter, and Space interaction, icon/accessible-name updates,
-  no accidental submission, the email placeholder, and desktop/mobile layout with
-  actual Nord controls, including vertical centering and short-screen scrolling.
+      no accidental submission, the email placeholder, and desktop/mobile layout with
+      actual Nord controls, including vertical centering and short-screen scrolling.
 
 Done when: the email field has its example placeholder, both pages' headings and
 content are vertically centered when space permits and remain reachable when it does
@@ -276,24 +276,24 @@ in the existing milestone 7 manual checklist.
 ## 9. Accessibility scans and WebKit coverage
 
 - [x] Add WebKit alongside Chromium in the existing Playwright configuration.
-  Run the existing behavior suite in both browsers against production output
-  with real Nord components.
+      Run the existing behavior suite in both browsers against production output
+      with real Nord components.
 - [x] Add `@axe-core/playwright` scans in both browsers for the initial form,
-  the form after empty submission with both required errors visible, and the
-  success page reached through valid submission. Wait for each state to render
-  before scanning.
+      the form after empty submission with both required errors visible, and the
+      success page reached through valid submission. Wait for each state to render
+      before scanning.
 - [x] Select WCAG 2.1 A/AA scan rules and assert no detected violations. Keep
-  actionable violation details in failures; document any justified exception
-  rather than broadly disabling rules or excluding the form.
+      actionable violation details in failures; document any justified exception
+      rather than broadly disabling rules or excluding the form.
 - [x] Retain existing keyboard, password-toggle, focus, error-association,
-  route-announcement, privacy, and responsive checks. Investigate browser
-  differences without weakening the behavioral contract to make tests pass.
+      route-announcement, privacy, and responsive checks. Investigate browser
+      differences without weakening the behavioral contract to make tests pass.
 - [x] Document installation of both Playwright browsers, commands for the full
-  suite and individual browser projects, and the limits of automated scans.
-  Distinguish bundled WebKit coverage from actual Safari and VoiceOver testing.
+      suite and individual browser projects, and the limits of automated scans.
+      Distinguish bundled WebKit coverage from actual Safari and VoiceOver testing.
 - [x] Run the expanded browser suite, unit tests, type checking, and production
-  build. Record results in the browser verification notes and keep milestone 7's
-  manual zoom/screen-reader checks open until actually performed.
+      build. Record results in the browser verification notes and keep milestone 7's
+      manual zoom/screen-reader checks open until actually performed.
 
 Done when: existing behavior and all three accessibility scan states pass in
 Chromium and WebKit, with reproducible commands and accurately documented limits.
@@ -316,13 +316,59 @@ a manual review item, not a detected violation or suppressed rule. Decision D17
 and the browser verification notes record the scope and evidence. Milestone 7's
 actual zoom and spoken screen-reader checks remain open.
 
-## 10. Submission preparation
+## 10. Linting, formatting, and pre-commit checks
+
+- [x] Configure ESLint for Nuxt/Vue and TypeScript and Prettier for formatting,
+      keeping formatting rules from conflicting with lint rules. Ignore generated
+      Nuxt/build output, dependencies, and test artifacts.
+- [x] Add standalone `lint`, `format`, and `format:check` scripts and document
+      their scope. Keep lint checking separate from automatic semantic fixes.
+- [x] Resolve lint findings while preserving the specified application behavior.
+- [x] Apply the initial repository formatting pass.
+- [x] Set up Husky and lint-staged to format supported staged files and lint
+      staged code before commits. Block on lint errors, preserve unrelated unstaged
+      edits, and avoid running full type checking, builds, or browser tests in the hook.
+- [x] Verify hook installation from the documented setup, successful formatting,
+      rejection of a deliberate lint error, and preservation of partially staged
+      work using disposable changes; remove those changes after verification.
+- [x] Run lint, read-only formatting checks, unit tests, type checking, and the
+      browser suite against production output. Verify formatting after the initial pass.
+      Document that hooks are a local convenience and can be bypassed; no GitHub
+      Actions workflow is planned.
+
+Done when: standalone checks pass, the pre-commit hook provides fast staged-file
+feedback, and another developer can reproduce setup without losing unstaged work.
+
+Learn: linting versus formatting versus type checking, Git staging, and the
+trade-off between convenient local hooks and independently runnable checks.
+
+Tooling implemented and verified on 2026-11-01 using Node 24.22.2. ESLint,
+four unit tests, application/browser-test type checking, and all 22 production
+Chromium/WebKit cases pass; the browser command also builds production output.
+The ESLint/Prettier compatibility check found no conflicting rules. Ignore-scope
+checks confirmed that source, configuration, and tests are included while
+generated output, dependencies, coverage, and test artifacts are excluded.
+
+A disposable checkout passed a clean `npm ci`, generated Nuxt's ESLint config,
+and installed Husky through the lifecycle scripts. A real disposable commit
+invoked the hook successfully. Further checks verified staged-code formatting,
+preservation of unstaged portions of the same file, unrelated tracked edits and
+untracked files, and rejection of a deliberate unused-variable error. On failure,
+the index and working files were restored exactly and no backup stash remained.
+The disposable checkout was removed; the real repository's index was untouched.
+
+The subsequently staged initial formatting pass is included in this milestone.
+`format:check` now passes without writing files. Lint, all four unit tests, and
+both TypeScript checks also pass after formatting.
+Decision D18 records the configuration and small lint-driven changes.
+
+## 11. Submission preparation
 
 - [ ] Finish README setup, run, test, and build instructions.
 - [ ] Explain simulated registration, assumptions, and relevant trade-offs.
 - [ ] Verify installation and documented commands from a clean setup.
 - [ ] Include Chromium/WebKit installation, accessibility scan scope, lint and
-  formatting commands, and pre-commit setup in the final README review.
+      formatting commands, and pre-commit setup in the final README review.
 - [ ] Review the acceptance checklist and explain the implementation end to end.
 
 Done when: another developer can run and assess the project using the README,

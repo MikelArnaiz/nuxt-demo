@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { getEmailError, getPasswordError, validateSignup } from '../app/utils/signup-validation.ts'
+import {
+  getEmailError,
+  getPasswordError,
+  validateSignup,
+} from '../app/utils/signup-validation.ts'
 
 test('empty signup reports required errors in validation priority order', () => {
   assert.deepEqual(validateSignup({ email: '', password: '' }, false), [
@@ -23,8 +27,11 @@ test('password has no strength rules and is never trimmed', () => {
 })
 
 test('valid signup has no field errors', () => {
-  assert.deepEqual(validateSignup({ email: 'person@example.com', password: 'example' }, false), [
-    { name: 'email', error: null },
-    { name: 'password', error: null },
-  ])
+  assert.deepEqual(
+    validateSignup({ email: 'person@example.com', password: 'example' }, false),
+    [
+      { name: 'email', error: null },
+      { name: 'password', error: null },
+    ],
+  )
 })

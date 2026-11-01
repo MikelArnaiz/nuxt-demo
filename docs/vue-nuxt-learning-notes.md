@@ -113,13 +113,13 @@ It does not disable TypeScript or browser developer tools.
 
 ## Understand the other setup files
 
-| File | Purpose | React comparison |
-| --- | --- | --- |
-| `package.json` | Dependencies and commands; requires supported Node 24 | Same role in a React project |
-| `package-lock.json` | Locks the installed dependency tree for `npm ci` | Same npm behavior |
-| `.nvmrc` | Selects the Node 24 release line | Framework-independent runtime setup |
-| `tsconfig.json` | References Nuxt-generated TypeScript configurations | A framework-managed TypeScript setup rather than hand-maintained aliases |
-| `.gitignore` | Excludes dependencies and generated output | Same Git behavior |
+| File                | Purpose                                               | React comparison                                                         |
+| ------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------ |
+| `package.json`      | Dependencies and commands; requires supported Node 24 | Same role in a React project                                             |
+| `package-lock.json` | Locks the installed dependency tree for `npm ci`      | Same npm behavior                                                        |
+| `.nvmrc`            | Selects the Node 24 release line                      | Framework-independent runtime setup                                      |
+| `tsconfig.json`     | References Nuxt-generated TypeScript configurations   | A framework-managed TypeScript setup rather than hand-maintained aliases |
+| `.gitignore`        | Excludes dependencies and generated output            | Same Git behavior                                                        |
 
 Nuxt generates `.nuxt/` during preparation. The TypeScript references separate
 browser app code, server code, shared code, and Node tooling contexts. Referencing
@@ -974,3 +974,63 @@ assertions. Neither proves screen-reader speech or every accessibility
 criterion. Bundled WebKit is engine coverage, not the Safari app or a VoiceOver
 session. Keep the actual zoom/screen-reader checks open and record those limits
 separately in [browser verification notes](browser-verification.md).
+
+# Milestone 10: linting, formatting, and Git staging
+
+## Different tools answer different questions
+
+ESLint checks source patterns, such as unused variables and side effects in Vue
+computed getters. Prettier standardizes whitespace, wrapping, and punctuation.
+TypeScript checks type relationships; the production build and browser tests
+check other parts of the application. These roles are the same in a React
+project. A formatter cannot establish that validation or navigation works.
+
+Nuxt's ESLint module generates configuration during `nuxt prepare`, including
+framework globals such as `navigateTo` and the locations of pages and components.
+A plain React/Vite app normally configures its React plugins and globals directly.
+Here the root `eslint.config.mjs` extends Nuxt's generated configuration and adds
+project-specific ignores and the Prettier compatibility config last. Nuxt's
+stylistic preset stays off, and ESLint never invokes Prettier as a lint rule.
+
+## Preserve framework and browser boundaries
+
+A computed getter should derive a value without mutating state outside itself,
+similar to deriving a value during React rendering or in `useMemo`. The email
+validator is now created inside the computed callback. Setting properties on that
+local detached input still asks the browser for email validity, without mutating
+an object retained outside the callback. The browser tests verify that the
+accepted email formats and error behavior stay the same.
+
+Vue's deprecated `slot` attribute rule needs an exception for children of Nord
+elements. Their `slot="end"` is native Web Component composition, as explained
+in milestone 8, rather than old Vue component slot syntax. Keep that exception
+limited to `nord-*` parents. The Playwright automatic fixture uses `undefined`
+as its value type and calls `use(undefined)`; it still wraps every test and checks
+its console, without exposing a fixture value.
+
+## The next commit can differ from the working file
+
+Git's index stores the proposed commit. A file is partially staged when its
+working copy also contains edits outside that proposal. Husky runs the pre-commit
+command; lint-staged selects the staged files, temporarily hides their unstaged
+portions, runs the configured tools, stages successful formatting, and restores
+those hidden edits. Its default backup and rollback protect the original state
+if a task fails. No manual `git add` belongs in these tasks.
+
+Code files run ESLint without fixes, then Prettier. Documents and styles run
+Prettier through a separate, non-overlapping pattern. The hook does not rebuild
+Nuxt or run type checking or browsers. As in a React repository, the trade-off is
+quick local feedback in exchange for a narrower check than the full test suite.
+Hooks can be bypassed, so the standalone commands remain useful during review.
+
+`npm ci` generates Nuxt's configuration through `postinstall` and installs Husky
+through `prepare`. Repositories installed with scripts disabled need those two
+commands run explicitly. Husky installs a repository-local hooks path; Git GUIs
+also need Node/npm available in their environment.
+
+The initial repository formatting pass is complete.
+`npm run format:check` passes without writing files;
+`npm run format` applies formatting when future changes need it.
+Clean installation and hook success/failure cases were verified in a disposable
+checkout, including preservation of partially staged and unrelated edits. Lint,
+four unit tests, both TypeScript checks, and all 22 production browser cases pass.

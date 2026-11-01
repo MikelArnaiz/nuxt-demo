@@ -447,3 +447,59 @@ Checked official Playwright guidance for
 [projects](https://playwright.dev/docs/test-projects),
 [accessibility states, rule tags, and result attachments](https://playwright.dev/docs/accessibility-testing),
 and [browser installation and WebKit](https://playwright.dev/docs/browsers#webkit).
+
+## D18. Separate linting and formatting, with staged pre-commit checks
+
+Milestone 10 pins `@nuxt/eslint` 1.17.0, ESLint 10.14.0,
+`eslint-config-prettier` 10.1.8, Prettier 3.9.10, Husky 9.1.7, and
+lint-staged 17.6.0 as development dependencies. Existing resolved package
+versions remain unchanged. Nuxt's ESLint module generates project-aware flat
+configuration during `nuxt prepare`, including auto-import globals and the
+Nuxt 4 `app/` directories. The root ESLint config extends that generated config.
+Keep linting standalone rather than adding a development-server checker.
+
+Use Prettier for formatting with single quotes, no semicolons, and trailing
+commas. Disable Nuxt's stylistic preset and append `eslint-config-prettier` last
+to turn off overlapping rules. Also disable Vue attribute ordering because it
+is a presentation convention. Keep the deprecated Vue slot rule enabled, except
+under `nord-*` parents: those use native Web Component slots. Ignore generated
+Nuxt/build output, dependencies, caches, coverage, Playwright artifacts, and
+Husky's generated helpers. Leave the npm-generated lockfile to npm.
+
+`lint` checks code and fails on errors or warnings without applying semantic
+fixes. `format` runs Prettier over the repository; `format:check` is read-only.
+The initial repository formatting pass is included, and the standalone formatting
+check passes. The only application logic change moves the detached email validator inside
+its computed callback, eliminating mutation of an outer value while preserving
+browser email semantics. The automatic Playwright fixture uses `undefined`
+and `use(undefined)` instead of a `void` property, preserving its behavior while
+meeting the TypeScript lint rule.
+
+Keep the existing `postinstall: nuxt prepare` and add `prepare: husky` so
+`npm ci` generates the ESLint config and installs repository-local hooks.
+Husky's local `core.hooksPath` takes precedence over a global hooks path without
+changing global configuration. The pre-commit hook runs locally installed
+lint-staged. Non-overlapping patterns lint staged code first, then format it,
+and format supported staged documents and styles separately. Do not run
+`eslint --fix`, type checking, builds, or browser tests in this fast hook.
+
+Retain lint-staged's default stash backup, failure rollback, and temporary
+hiding of unstaged portions of partially staged files. Do not add manual
+`git add` commands or disable those safeguards. Hooks are bypassable local
+conveniences; the standalone checks remain available, and no GitHub Actions
+workflow is planned.
+
+Verified on 2026-11-01 with Node 24.22.2: lint, four unit tests, both TypeScript
+checks, and all 22 production Chromium/WebKit cases pass, including the build.
+The config compatibility check finds no conflicting formatting rules. A clean
+`npm ci` in a disposable checkout generated Nuxt's config and installed Husky.
+Disposable hook runs verified successful staged formatting, preservation of
+partially staged and unrelated work, and a rejected lint-error commit with
+exact restoration of the index and working files. Those fixtures were removed.
+The repository-wide formatting check also passes after the initial formatting
+pass.
+
+References: [Nuxt ESLint module](https://eslint.nuxt.com/packages/module),
+[Prettier integration](https://prettier.io/docs/integrating-with-linters),
+[Husky setup](https://typicode.github.io/husky/how-to.html), and
+[lint-staged staging and rollback behavior](https://github.com/lint-staged/lint-staged).

@@ -48,6 +48,47 @@ npm run dev
 
 Open the local URL printed by Nuxt (normally http://localhost:3000).
 
+## Linting, formatting, and pre-commit checks
+
+```sh
+npm run lint
+npm run format:check
+# Apply formatting to the whole repository when ready:
+npm run format
+```
+
+`lint` checks Vue, JavaScript, and TypeScript in the application, configuration,
+and tests using Nuxt's project-aware ESLint configuration. It fails on errors or
+warnings and does not apply fixes. Prettier owns formatting; overlapping ESLint
+formatting rules are disabled. Type checking remains a separate command.
+
+`format:check` reports formatting differences without writing files. `format`
+formats all supported files throughout the repository, including source,
+configuration, and documentation. Both tools ignore generated Nuxt/build output,
+dependencies, caches, coverage, and Playwright artifacts. Prettier also ignores
+the npm-generated lockfile and generated Husky helpers. The initial repository
+formatting pass is complete, and `format:check` passes.
+
+`npm ci` runs `nuxt prepare` to generate Nuxt's types and ESLint configuration,
+then `husky` to install the local Git hooks. If dependencies were installed with
+lifecycle scripts disabled, run `npm run postinstall` and `npm run prepare`
+explicitly. Husky sets this repository's `core.hooksPath` to `.husky/_`, which
+takes precedence over any global hooks path without changing the global setting.
+Git needs Node/npm available in its environment, including when committing from
+a GUI; see [Husky's version-manager guidance](https://typicode.github.io/husky/how-to.html#node-version-managers-and-guis).
+
+Before a commit, lint-staged reads `.lintstagedrc.json`, checks staged code with
+ESLint, then formats it with Prettier; supported staged documents and styles are
+formatted too. The patterns do not overlap, and no semantic autofixes, type checks,
+builds, or browser tests run in the hook. lint-staged's default backup, rollback, and hiding of
+unstaged portions of partially staged files remain enabled. Successful formatting
+is staged automatically; a lint failure blocks the commit and restores task
+changes. Review formatting changes before retrying a commit.
+
+Hooks are local convenience checks and can be bypassed, for example with
+`HUSKY=0 git commit ...`. Run the standalone checks when reviewing changes;
+no GitHub Actions workflow is planned.
+
 ## Tests, type checking, and production build
 
 ```sh

@@ -6,7 +6,10 @@ export type SignupValidationResult = {
 }
 
 // The caller supplies the browser's typeMismatch result for the trimmed email.
-export function getEmailError(value: string, emailTypeMismatch: boolean): string | null {
+export function getEmailError(
+  value: string,
+  emailTypeMismatch: boolean,
+): string | null {
   if (!value.trim()) {
     return 'Enter your email address.'
   }
