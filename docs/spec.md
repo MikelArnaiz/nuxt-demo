@@ -183,32 +183,42 @@ management, and a custom component library.
 
 ## Acceptance checklist
 
-- [ ] A fresh form has empty inputs, hidden password, unchecked opt-in, and no errors.
+Reviewed for milestone 11 on 2026-11-01. Checked behavior is supported by the
+production Chromium/WebKit suite, focused unit tests, recorded visual/hook
+verification, and the clean-setup review recorded in the milestone log. The author
+also completed actual browser zoom and VoiceOver checks. The observed VoiceOver
+limitation is accepted for this demo in decision D19. The author also completed
+the primary-button contrast review, with the reported result recorded below.
+
+- [x] A fresh form has empty inputs, hidden password, unchecked opt-in, and no errors.
 - [x] The empty email input shows “e.g. name@example.com” while retaining its visible Email label.
-- [ ] Empty submission shows both required errors and focuses email.
-- [ ] Whitespace-only email shows the required error.
-- [ ] Malformed email prevents navigation and shows the format error.
+- [x] Empty submission shows both required errors and focuses email.
+- [x] Whitespace-only email shows the required error.
+- [x] Malformed email prevents navigation and shows the format error.
 - [x] `person@localhost` is accepted by email validation as a single-label domain.
-- [ ] Surrounding email whitespace does not invalidate an otherwise valid address.
-- [ ] Empty password prevents navigation; when email is valid, password receives focus.
-- [ ] Invalid submission preserves email, password, and opt-in state.
-- [ ] After submission, editing updates errors, including when a value becomes invalid again.
-- [ ] Password visibility toggles by keyboard and pointer without clearing or submitting.
+- [x] Surrounding email whitespace does not invalidate an otherwise valid address.
+- [x] Empty password prevents navigation; when email is valid, password receives focus.
+- [x] Invalid submission preserves email, password, and opt-in state.
+- [x] After submission, editing updates errors, including when a value becomes invalid again.
+- [x] Password visibility toggles by keyboard and pointer without clearing or submitting.
 - [x] The password visibility button sits inside the input's right edge and switches its icon, accessible action name, and tooltip together.
-- [ ] Enter submits the form.
-- [ ] Valid submission reaches success with the opt-in both selected and unselected.
-- [ ] Success direct visits and refreshes work without personal data or stored state.
-- [ ] Returning to sign-up starts a fresh form.
-- [ ] Keyboard order, focus visibility, labels, error associations, and route announcements work.
-- [ ] Sign-up displays a centered “Sign up” heading on a white page without a header, logo, or form card.
-- [ ] Both pages' headings and content are vertically centered together when space permits; short screens, validation errors, and zoom leave all content reachable by scrolling.
-- [ ] Desktop content is approximately 470 CSS pixels wide, with left-aligned field labels and full-width inputs and submit button.
-- [ ] Both routes use consistent typography, content width, and spacing, with Nord controls and tokens taking precedence over exact visual matching.
-- [ ] Narrow-screen and zoom checks reveal no inaccessible content or horizontal overflow.
-- [ ] Credentials are never persisted, transmitted, or logged by application code.
-- [ ] Type checking, focused automated tests, and production build pass.
+- [x] Enter submits the form.
+- [x] Valid submission reaches success with the opt-in both selected and unselected.
+- [x] Success direct visits and refreshes work without personal data or stored state.
+- [x] Returning to sign-up starts a fresh form.
+- [x] Keyboard order, focus visibility, labels, error associations, and live-region route updates work in the tested browsers.
+- [x] Sign-up displays a centered “Sign up” heading on a white page without a header, logo, or form card.
+- [x] Both pages' headings and content are vertically centered together when space permits; short screens and validation errors leave all content reachable by scrolling.
+- [x] Desktop content is approximately 470 CSS pixels wide, with left-aligned field labels and full-width inputs and submit button.
+- [x] Both routes use consistent typography, content width, and spacing, with Nord controls and tokens taking precedence over exact visual matching.
+- [x] Narrow-screen checks reveal no inaccessible content or horizontal overflow.
+- [x] Actual 200% and 400% browser zoom leaves both routes' content and controls readable and reachable.
+- [x] Manual VoiceOver checks are complete, with submission errors spoken and the missing error description on refocus accepted as a demo limitation (D19).
+- [x] Manual review resolves axe's inconclusive primary-button contrast result (author-reported 6.17:1 for white text on `#3559C7`, checked on 2026-11-01).
+- [x] Credentials are never persisted, transmitted, or logged by application code.
+- [x] Type checking, focused automated tests, and production build pass.
 - [x] Existing browser scenarios and the three axe scan states pass in Chromium and WebKit.
 - [x] Manual zoom and screen-reader checks are recorded separately from automated scan results.
-- [ ] ESLint and Prettier checks pass through the documented standalone commands.
-- [ ] Pre-commit formats staged files and blocks lint errors without changing unrelated unstaged work or running heavyweight checks.
-- [ ] README documents setup, commands, assumptions, and the simulated registration.
+- [x] ESLint and Prettier checks pass through the documented standalone commands.
+- [x] Pre-commit formats staged files and blocks lint errors without changing unrelated unstaged work or running heavyweight checks.
+- [x] README documents setup, commands, assumptions, and the simulated registration.

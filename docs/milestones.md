@@ -175,7 +175,7 @@ type checking, and the production build. Development-browser checks confirmed
 polite, atomic live-region title updates on successful submission, keyboard
 return, and history navigation; no heading focus on direct visits or refreshes;
 natural Tab order; and unchanged first-invalid-field focus. Screen-reader
-speech still needs manual verification in milestone 7.
+speech was subsequently checked manually as recorded in milestone 7 and D19.
 
 Learn: file-based routing, navigation, component lifetime, and page metadata.
 Document any static-host fallback needed for direct route access.
@@ -186,8 +186,7 @@ Document any static-host fallback needed for direct route access.
 - [x] Exercise actual Nord components rather than replacing them with test doubles.
 - [x] Include `person@localhost` as an accepted single-label email in the browser suite.
 - [x] Manually inspect keyboard use, errors, focus, and responsive layout.
-- [ ] Complete actual browser zoom and spoken screen-reader checks recorded in
-      the browser verification notes.
+- [x] Complete actual browser zoom and spoken screen-reader checks.
 - [x] Check both routes against the visual acceptance criteria, allowing Nord
       component styling to take precedence over exact matching of the reference.
 - [x] Run type checking, tests, and the production build; fix discovered issues.
@@ -202,13 +201,14 @@ state, data-handling checks, and desktop/320px layout. No application changes
 were needed. Decision D15 records the test tooling choices.
 
 Manual keyboard, errors, focus styling, both routes' presentation, the careers
-reference, and desktop/320px screenshots were inspected. The manual checkbox
-remains open for actual browser zoom and spoken screen-reader output. Native
-Chrome control lacked computer-use permission; the in-app browser did not
-respond to the zoom shortcut. Live-region DOM assertions do not prove speech.
-[Browser verification notes](browser-verification.md) record the evidence,
-scope, and exact remaining manual steps. Submission preparation (now milestone 11)
-has not been started.
+reference, and desktop/320px screenshots were inspected. The author completed
+actual 200%/400% browser zoom and VoiceOver checks on 2026-11-01. VoiceOver reads
+validation errors on submission but does not repeat their specific text when
+returning to invalid fields in Safari. The same behavior reproduced with plain
+HTML inputs. The author accepts this limitation for the demo; no further
+investigation is pending. Decision D19 records the scope decision. Automated
+live-region DOM assertions remain separate from the manual speech checks.
+Submission preparation (now milestone 11) had not been started at that point.
 
 Critical review subsequently trimmed the suite to eight browser tests and four
 unit tests. Removed duplicate success/privacy/history runs, redundant email
@@ -270,8 +270,8 @@ and keyboard focus styling. The heading/form group has equal space above and
 below when it fits; short-screen content scrolls with reachable heading/submit
 and no horizontal overflow. Desktop form width remains 470px. Decision D16
 records slot composition, accessible naming, icon bundling, and the shared
-centering layout. Actual browser zoom and spoken screen-reader output remain
-in the existing milestone 7 manual checklist.
+centering layout. Actual browser zoom and spoken screen-reader checks were
+subsequently completed under milestone 7, with the accepted limitation in D19.
 
 ## 9. Accessibility scans and WebKit coverage
 
@@ -292,8 +292,8 @@ in the existing milestone 7 manual checklist.
       suite and individual browser projects, and the limits of automated scans.
       Distinguish bundled WebKit coverage from actual Safari and VoiceOver testing.
 - [x] Run the expanded browser suite, unit tests, type checking, and production
-      build. Record results in the browser verification notes and keep milestone 7's
-      manual zoom/screen-reader checks open until actually performed.
+      build. Record automated results separately from milestone 7's completed
+      manual zoom/screen-reader checks.
 
 Done when: existing behavior and all three accessibility scan states pass in
 Chromium and WebKit, with reproducible commands and accurately documented limits.
@@ -311,10 +311,10 @@ a missing document language; Nuxt now emits `lang="en"` on both routes.
 macOS WebKit uses native Option-Tab in the keyboard tests, preserving every
 focus-order assertion without changing system preferences or forcing focus.
 Full axe results are attached to the saved HTML report. Axe leaves the primary
-button's contrast inconclusive because of a Nord pseudo-element; this remains
-a manual review item, not a detected violation or suppressed rule. Decision D17
-and the browser verification notes record the scope and evidence. Milestone 7's
-actual zoom and spoken screen-reader checks remain open.
+button's contrast inconclusive because of a Nord pseudo-element; this required
+manual review, not a detected violation or suppressed rule. Decision D17
+records the scope and evidence. Milestone 7's actual zoom and spoken
+screen-reader checks are complete, with the accepted limitation recorded in D19.
 
 ## 10. Linting, formatting, and pre-commit checks
 
@@ -364,12 +364,38 @@ Decision D18 records the configuration and small lint-driven changes.
 
 ## 11. Submission preparation
 
-- [ ] Finish README setup, run, test, and build instructions.
-- [ ] Explain simulated registration, assumptions, and relevant trade-offs.
-- [ ] Verify installation and documented commands from a clean setup.
-- [ ] Include Chromium/WebKit installation, accessibility scan scope, lint and
+- [x] Finish README setup, run, test, and build instructions.
+- [x] Explain simulated registration, assumptions, and relevant trade-offs.
+- [x] Verify installation and documented commands from a clean setup.
+- [x] Include Chromium/WebKit installation, accessibility scan scope, lint and
       formatting commands, and pre-commit setup in the final README review.
-- [ ] Review the acceptance checklist and explain the implementation end to end.
+- [x] Review the acceptance checklist and explain the implementation end to end.
 
 Done when: another developer can run and assess the project using the README,
 and the author can explain each meaningful decision.
+
+Completed on 2026-11-01 using Node 24.22.2 and npm 11.8.0. The README now covers
+clone/setup, all verification commands, simulated registration, email/password
+assumptions, state/privacy, Nord presentation, pre-commit behavior, and Node/static
+hosting. The acceptance checklist separates verified behavior from outstanding
+manual checks, and the learning notes trace the implementation end to end with
+React comparisons. Decision D19 records the submission review scope.
+
+A disposable clone installed all 785 locked packages with `npm ci` using cached
+registry packages and regenerated Nuxt configuration/types and Husky hooks.
+Chromium/WebKit installation completed using cached browser binaries. Lint,
+formatting, four unit tests, both TypeScript checks, and all 22 production browser
+cases pass, including six axe scans with zero detected selected-rule violations.
+The browser command also verified the production build. Development and preview
+servers returned 200 for direct/repeated requests to both routes on temporary
+local ports; static generation produced the SPA entry/fallback and success route.
+Adjusted the root `dist` ignore rule to cover Nuxt's generated symlink as well as
+a directory, keeping static output out of Git status.
+The original development server remains on port 3000.
+
+Submission preparation and milestone 7's manual zoom and VoiceOver checks are
+complete. On 2026-11-01, the author reported 6.17:1 for the primary button's white
+text on `#3559C7` and confirmed completion of the manual contrast review. The
+acceptance checklist records this manual result separately from axe's incomplete
+assessment. D19 records the accepted VoiceOver limitation and contrast evidence.
+Passing automated checks is not a claim of full accessibility conformance.

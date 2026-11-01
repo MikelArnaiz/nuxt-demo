@@ -311,8 +311,8 @@ Nord controls confirmed one `role="status"`, `aria-live="polite"`,
 keyboard return navigation, and browser history. Direct visits and refreshes
 left focus on the document; headings have no `tabindex` or visible outline.
 Tab reached Email or the return link, and invalid submission still focused
-Email. Live-region DOM updates were verified; spoken output with a screen
-reader remains a manual milestone 7 check.
+Email. Live-region DOM updates were verified; spoken output was subsequently
+checked manually under milestone 7, with the accepted limitation recorded in D19.
 
 ## D15. Test real Nord interactions against fresh production output
 
@@ -342,9 +342,9 @@ traces can include them and should not be recorded with real credentials.
 
 Assertions for live-region text, roles, and focus establish browser DOM
 behavior. They do not establish screen-reader speech or actual zoom behavior.
-Record those manual limitations and completion steps in
-[browser verification notes](browser-verification.md); leave the milestone's
-manual check open until they are performed. No application fixes were required.
+The author subsequently completed manual zoom and screen-reader checks on
+2026-11-01; D19 records the accepted VoiceOver limitation. No application fixes
+were required.
 
 After critical review, reduced the original ten browser/eight unit tests to
 eight browser/four unit tests. Run the full success/privacy/history flow once
@@ -398,8 +398,8 @@ Verified on 2026-10-31 with Node 24.22.2: four unit tests, eight production brow
 tests, type checking, and build pass. Browser checks cover labels, tooltip,
 rendered SVGs, pointer/Enter/Space toggling, preserved values, natural Tab order,
 and short-screen reachability. Desktop/mobile screenshots confirm centering and
-focus styling. Actual zoom and spoken screen-reader verification remain the
-separate manual checks recorded in milestone 7.
+focus styling. Actual zoom and spoken screen-reader verification were
+subsequently completed under milestone 7, with the accepted limitation in D19.
 
 ## D17. Chromium/WebKit projects and scoped accessibility scans
 
@@ -440,8 +440,8 @@ and [Apple's keyboard shortcuts](https://support.apple.com/en-lamr/guide/safari/
 Verified on 2026-11-01 using Node 24.22.2 and macOS 26.5.2: all 22 production
 browser cases pass in Chromium 156 and WebKit 27.2, as do four unit tests,
 application/browser-test type checking, and the production build. All six scans
-report zero selected violations. Actual zoom and spoken screen-reader
-checks remain open in [browser verification notes](browser-verification.md).
+report zero selected violations. Actual zoom and spoken screen-reader checks
+were completed separately by the author, with the accepted limitation in D19.
 
 Checked official Playwright guidance for
 [projects](https://playwright.dev/docs/test-projects),
@@ -503,3 +503,52 @@ References: [Nuxt ESLint module](https://eslint.nuxt.com/packages/module),
 [Prettier integration](https://prettier.io/docs/integrating-with-linters),
 [Husky setup](https://typicode.github.io/husky/how-to.html), and
 [lint-staged staging and rollback behavior](https://github.com/lint-staged/lint-staged).
+
+## D19. Finish the submission with traceable evidence and explicit manual gaps
+
+Milestone 11 is a documentation and reproducibility review of the completed
+application. Keep the README focused on running, checking, and assessing the
+demo; put the end-to-end Vue/Nuxt explanation and React comparisons in the
+learning notes. Describe the deliberate assumptions: local simulation, browser
+email semantics including single-label domains, nonempty unmodified passwords,
+optional opt-in, page-local state, generic direct success, and JavaScript-dependent
+rendering. No new application features or dependencies are needed.
+
+Keep verification results in the milestone log and outstanding manual checks in
+the specification's acceptance checklist. Label historical evidence as historical.
+Review the checklist against the available evidence rather than marking every
+item complete automatically.
+
+Use a disposable local clone with its own Git metadata to verify `npm ci` and
+Husky setup without altering the original index or hooks configuration. The
+installation uses cached registry packages and existing Playwright binaries;
+record that distinction from a new network download. Verify the documented
+lint, formatting, unit/type/browser checks, production build, development/preview
+commands, and static generation. No host deployment is part of this review.
+
+Static generation exposed one repository housekeeping issue: Nuxt creates a root
+`dist` symlink to `.output/public`, which the directory-only `dist/` Git ignore
+pattern missed. Use `/dist` to ignore both a root directory and a root symlink.
+Verification checks the actual generated link with `git check-ignore`.
+
+On 2026-11-01, the author confirmed completion of actual 200%/400% browser zoom
+and VoiceOver checks. Mark milestone 7 and the corresponding acceptance items
+complete; these checks are no longer pending work.
+
+In the tested Safari/VoiceOver setup, invalid fields announce their labels,
+required state, and generic invalid state. Specific validation errors are read
+on submission but are not repeated when returning to an invalid input. The
+same refocus behavior occurred in all four isolated comparison cases, including
+plain HTML without Nuxt, Vue, Nord, or shadow DOM. This does not establish a
+specific Safari defect or VoiceOver setting as the cause.
+
+Accept that observed behavior as a limitation of this small frontend demo,
+rather than continuing the investigation or adding a speculative workaround.
+Retain Nord's supported error association and submission announcements. This
+scope decision does not claim full accessibility conformance.
+
+On 2026-11-01, the author reported a primary-button text contrast ratio of
+6.17:1 for white text on `#3559C7`, exceeding the WCAG AA normal-text minimum
+of 4.5:1, and confirmed that the contrast review should be marked complete.
+Record this as manual evidence resolving the acceptance item; axe's automated
+assessment remains incomplete because of Nord's pseudo-element background.

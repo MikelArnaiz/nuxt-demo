@@ -831,9 +831,9 @@ Narrow viewports are reflow evidence, not proof of actual browser zoom.
 The route announcer's polite/atomic attributes and changing message can be
 asserted in the DOM. Whether VoiceOver or NVDA speaks the message, and whether
 it is repeated or interrupted, needs a real screen-reader session. Keep those
-limits explicit: [verification notes](browser-verification.md) record the passed
-checks and the remaining zoom/speech steps. The milestone's manual checkbox
-remains open. The original ten browser/eight unit tests were trimmed to eight
+limits explicit. The author completed the manual zoom and VoiceOver checks on
+2026-11-01; decision D19 records the accepted error-description limitation.
+The original ten browser/eight unit tests were trimmed to eight
 browser/four unit tests after review. The full success/privacy/history flow runs
 once; the single-label-email/Enter case covers the other opt-in choice. Repeated
 calls to a pure function do not test Vue reactivity, so live correction is checked
@@ -848,8 +848,9 @@ and [projects](https://playwright.dev/docs/test-projects).
 When explaining this milestone aloud: “Unit tests check the pure validation
 rules. Browser tests exercise Vue, real Nord controls, and Nuxt navigation
 together against production output. Waiting for user-visible outcomes keeps
-the tests independent of framework scheduling, while zoom and spoken
-screen-reader behavior still need manual evidence.”
+the tests independent of framework scheduling. Zoom and spoken screen-reader
+behavior were checked manually, with the observed VoiceOver limitation accepted
+for the demo.”
 
 # Milestone 8: composing an inline action and centering the form
 
@@ -902,7 +903,8 @@ Verified with the real components: equal top/bottom space at 1440×900 and 320×
 470px desktop form width, readable mobile errors, visible keyboard focus, and
 reachable heading/submit controls in a scrolling 320×240 viewport. Existing
 validation, navigation, and fresh-state checks pass. Viewport resizing establishes
-reflow; it does not replace the outstanding actual zoom/screen-reader checks.
+reflow; separate actual zoom and VoiceOver checks were completed by the author
+and are recorded under milestone 7 and D19.
 
 # Milestone 9: browser projects and accessibility scans
 
@@ -972,8 +974,9 @@ detected zero selected WCAG violations.
 Automated rules complement the existing keyboard, focus, and announcement
 assertions. Neither proves screen-reader speech or every accessibility
 criterion. Bundled WebKit is engine coverage, not the Safari app or a VoiceOver
-session. Keep the actual zoom/screen-reader checks open and record those limits
-separately in [browser verification notes](browser-verification.md).
+session. The author completed separate actual zoom and VoiceOver checks; D19
+records their accepted limitation. Distinguish that manual evidence from
+automated scan results.
 
 # Milestone 10: linting, formatting, and Git staging
 
@@ -1034,3 +1037,98 @@ The initial repository formatting pass is complete.
 Clean installation and hook success/failure cases were verified in a disposable
 checkout, including preservation of partially staged and unrelated edits. Lint,
 four unit tests, both TypeScript checks, and all 22 production browser cases pass.
+
+# Milestone 11: submission review and end-to-end walkthrough
+
+## Follow a single submission through the application
+
+1. **Start the client application.** `nuxt.config.ts` sets `ssr: false`, the
+   English document language, Nord's global CSS, and recognition of `nord-*`
+   custom elements. `app/plugins/nord.client.ts` registers only the controls
+   used here and bundles the two password icons. Vue compiles the template;
+   Nord's Web Components render their native controls. This resembles using
+   custom elements in a React SPA, with registration at the client entry point.
+2. **Render the route.** `app/app.vue` keeps `NuxtRouteAnnouncer` mounted beside
+   `NuxtPage`. Nuxt discovers `/` from `app/pages/index.vue` and `/success` from
+   `app/pages/success.vue`. File-based routes replace the explicit router
+   configuration common in React Router applications. `PageContent.vue` provides
+   the main landmark, heading, shared layout, and reactive page title through
+   `useHead`. Its default Vue slot plays the composition role of React `children`.
+3. **Keep form state local.** Each visit creates email/password string refs and
+   boolean refs for opt-in, visibility, and whether submission was attempted.
+   Vue refs are read with `.value` in script and unwrapped in templates. Unlike
+   React's state setter, assigning to a ref notifies Vue directly. The Nord
+   controls receive `:value`/`:checked`; native `@input`/`@change` handlers read
+   typed `event.currentTarget` properties. This is an explicit controlled-input
+   flow rather than relying on Vue-component `v-model` conventions for a Web Component.
+4. **Derive state and handle visibility.** Computed values derive input type,
+   accessible action text, validation results, and displayed errors. Vue tracks
+   the refs read by each getter, without a React `useMemo` dependency array.
+   The non-submitting visibility button sits in Nord's native `end` slot. Vue
+   conditionally renders one eye icon inside a stable span so Nord's own proxy
+   button and Lit markers survive updates. The password input remains mounted
+   and its value is preserved; hidden text and the tooltip describe the next action.
+5. **Validate on submission.** `@submit.prevent="submit"` prevents native
+   navigation, and `novalidate` gives application errors consistent ownership.
+   Setting `submitted.value = true` activates the computed validation. A detached
+   native email input checks the trimmed email's browser `typeMismatch`; the
+   pure functions in `app/utils/signup-validation.ts` select required/format
+   errors in email-before-password order. Password validation checks only length.
+   Later edits update the same derived errors because their refs are dependencies.
+   In React, a submit handler and derived render values would serve these roles.
+6. **Render errors, then focus.** Nord receives each `error` property and owns
+   its rendered message and native input's accessibility associations. For an
+   invalid attempt, the handler awaits Vue's `nextTick()` and the first invalid
+   Nord input's `updateComplete`, then calls its public `focus()`. Vue's DOM flush
+   and Lit's render are separate boundaries. This is similar to coordinating
+   React's committed DOM with a separately rendered custom element; a state
+   assignment alone does not mean its accessible error already exists.
+7. **Navigate on valid input.** `navigateTo('/success')` changes the Nuxt page
+   without sending credentials or creating an account. The success page receives
+   no form data and renders the same generic content on a direct visit. The
+   shared component sets its title, and the persistent route announcer updates
+   a polite atomic live region. Navigation does not focus the heading. In React,
+   this corresponds to router navigation plus shared title/announcement handling.
+8. **Return to fresh state.** Leaving `/` unmounts its page; there is no global
+   store, persistence, or page keep-alive. Returning through the link or history
+   creates fresh refs: empty inputs, hidden password, unchecked opt-in, no errors.
+   The React comparison is component state being discarded on unmount, rather
+   than clearing a global store or passing the password between routes.
+
+## Match each check to the claim it supports
+
+The four Node tests cover message selection, field priority, and the intentionally
+minimal password rule. They cannot establish browser email semantics or Vue
+reactivity. The 22 production Chromium/WebKit cases exercise the real controls,
+navigation, keyboard/focus, error updates, privacy samples, short-screen scrolling,
+and three axe states per browser. Type checking, linting, formatting, and building
+answer different questions. The pre-commit hook checks only staged files and
+cannot replace the full verification commands.
+
+A clean installation checks another boundary: whether the lockfile and lifecycle
+scripts recreate types, lint configuration, and hooks without relying on an old
+`node_modules` or `.nuxt` directory. Milestone 11 uses a disposable clone with its
+own Git metadata so hook installation does not touch the original checkout's
+index or Git settings. Registry packages and Playwright binaries came from local
+caches; this is a fresh dependency installation, not a new network-download test.
+
+The reviewed acceptance checklist records tested behavior and historical visual
+evidence, together with the author's completed manual zoom and VoiceOver checks.
+D19 accepts the observed missing error description on refocus as a demo
+limitation; the author completed the primary-button contrast review on
+2026-11-01, reporting 6.17:1 for white text on `#3559C7`.
+DOM live-region updates do not prove
+speech, viewport resizing does not prove browser zoom, and Playwright WebKit is
+not a VoiceOver/Safari session. These evidence boundaries apply equally to React
+applications. The acceptance checklist records the completed manual checks and
+the accepted limitation and manual contrast result separately from automated
+scan results.
+
+## Prepare the handover
+
+The README keeps setup, commands, demo assumptions, hook behavior, scan scope,
+and Node/static hosting instructions together. This walkthrough keeps the tutorial
+explanation separate. The milestone log records verification results, and the
+acceptance checklist records completed manual checks, the accepted VoiceOver
+limitation, and the completed contrast review. Decision D19 records the
+submission review and manual-verification scope.
