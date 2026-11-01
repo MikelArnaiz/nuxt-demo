@@ -205,7 +205,8 @@ remains open for actual browser zoom and spoken screen-reader output. Native
 Chrome control lacked computer-use permission; the in-app browser did not
 respond to the zoom shortcut. Live-region DOM assertions do not prove speech.
 [Browser verification notes](browser-verification.md) record the evidence,
-scope, and exact remaining manual steps. Milestone 8 has not been started.
+scope, and exact remaining manual steps. Submission preparation (now milestone 9)
+has not been started.
 
 Critical review subsequently trimmed the suite to eight browser tests and four
 unit tests. Removed duplicate success/privacy/history runs, redundant email
@@ -222,7 +223,55 @@ Learn: behavior-oriented tests, Web Component boundaries, and when a browser tes
 provides evidence that a unit test cannot. Avoid duplicating every assertion at
 every testing level.
 
-## 8. Submission preparation
+## 8. Form presentation improvements
+
+- [x] Add the email placeholder “e.g. name@example.com”, keeping the visible Email
+  label and the initially empty value.
+- [x] Vertically center each page's heading and content together within the viewport,
+  following [Nordhealth's careers sign-in page](https://careers.nordhealth.com/connect/login).
+  Keep comfortable page padding and allow scrolling when content exceeds the
+  available height, including on short screens, with errors, or at browser zoom.
+- [x] Replace the current separate “Show password” / “Hide password” button with
+  a square custom Nord button inside the password input's `end` slot, following
+  [Nord's custom button example](https://nordhealth.design/components/input/#custom-button).
+- [x] Conditionally render `nord-icon` with `name="interface-edit-on"` or
+  `name="interface-edit-off"` according to password visibility; show only the
+  icon for the current action.
+- [x] Keep an accessible action name that switches between “Show password” and
+  “Hide password”, plus a matching tooltip. Keep `type="button"`, keyboard
+  access, and visible focus styling.
+- [x] Preserve the entered password and existing validation behavior when
+  toggling; update affected browser checks for the inline icon button.
+- [x] Verify pointer, Enter, and Space interaction, icon/accessible-name updates,
+  no accidental submission, the email placeholder, and desktop/mobile layout with
+  actual Nord controls, including vertical centering and short-screen scrolling.
+
+Done when: the email field has its example placeholder, both pages' headings and
+content are vertically centered when space permits and remain reachable when it does
+not, and the password field contains the working icon button at its right edge
+with the same accessible action and value-preserving behavior as the current control.
+
+Learn: named slots in Web Components, Vue conditional rendering, and accessible
+icon-only actions, plus responsive viewport layout and placeholders versus labels.
+Compare slot composition and conditional rendering with React.
+
+Verified on 2026-10-31 using Node 24.22.2: four validation tests, eight
+production Chromium browser tests, application/browser-test type checking, and
+the production build passed. Real Nord controls expose the email placeholder,
+exactly one locally bundled eye icon, and an accessible action name. Pointer,
+Enter, and Space toggles preserve values, leave validation untouched, and do not
+submit. The tooltip opens and follows the current action. Natural Tab order and
+fresh-state/history checks still pass.
+
+Visual inspection covered 1440×900, 320×800, and 320×240, including mobile errors
+and keyboard focus styling. The heading/form group has equal space above and
+below when it fits; short-screen content scrolls with reachable heading/submit
+and no horizontal overflow. Desktop form width remains 470px. Decision D16
+records slot composition, accessible naming, icon bundling, and the shared
+centering layout. Actual browser zoom and spoken screen-reader output remain
+in the existing milestone 7 manual checklist.
+
+## 9. Submission preparation
 
 - [ ] Finish README setup, run, test, and build instructions.
 - [ ] Explain simulated registration, assumptions, and relevant trade-offs.

@@ -850,3 +850,56 @@ rules. Browser tests exercise Vue, real Nord controls, and Nuxt navigation
 together against production output. Waiting for user-visible outcomes keeps
 the tests independent of framework scheduling, while zoom and spoken
 screen-reader behavior still need manual evidence.”
+
+# Milestone 8: composing an inline action and centering the form
+
+## Named slots versus React children
+
+The password's Nord input now contains a `nord-button slot="end"`. This is the
+browser's named-slot mechanism: Nord places that light-DOM child into the trailing
+slot of its shadow DOM, reserves input padding, and styles the adjoining border.
+A React component might expose an `endAdornment` prop receiving JSX. Here `slot`
+is an HTML attribute interpreted by the Web Component, not a Vue component prop
+or Vue's `<template #end>` syntax. No wrapper or absolute positioning is needed.
+
+`v-if="passwordVisible"` / `v-else` mounts one icon at a time, like a React JSX
+conditional. The input and button themselves stay mounted, preserving their
+value, focus, and Nord's form proxy. Keep a stable span around the changing
+children because Nord also manages nodes in the button's light DOM, as discovered
+in milestone 4. The existing computed action label drives both visually hidden
+button text and tooltip text, like deriving a label during a React render from
+one visibility state. There is no separate label or icon state to synchronize.
+
+## Check the native control's accessible name
+
+`nord-visually-hidden` names the native button inside Nord's shadow root by
+keeping the action text available inside the slotted button content without
+displaying it next to the eye. Role
+queries for “Show password” and “Hide password” verify the actual accessible
+control. Pointer, Enter, and Space tests still use those names. The tooltip is
+additional visible help; it is not the button's only accessible name.
+
+The client plugin imports and registers Tooltip and VisuallyHidden. It also
+registers the two icon SVGs with Nord's Icon component. Vite's `?raw` import reads
+the SVG as a string at build time, avoiding a runtime icon request. The icons
+package is now a pinned direct dependency because application code imports it.
+This build-time asset pattern works the same way in a React project using Vite.
+
+## Center content without making it unreachable
+
+The shared PageContent component centers both sign-up and success. As with a
+shared React layout, common presentation belongs in the shared component.
+Its `.page-content` class uses a column flex layout, `justify-content: center`,
+and `min-block-size: 100svh`.
+The minimum fills the small viewport height but lets the page grow when the form,
+errors, or narrow-screen wrapping need more room. Its existing padding remains.
+This CSS behaves the same in Vue and React; reactivity is not needed for sizing.
+
+The email placeholder is a plain attribute. It provides an example while the
+input is empty, without becoming a field value or replacing the Email label.
+
+Verified with the real components: equal top/bottom space at 1440×900 and 320×800,
+470px desktop form width, readable mobile errors, visible keyboard focus, and
+reachable heading/submit controls in a scrolling 320×240 viewport. Existing
+validation, navigation, and fresh-state checks pass. Viewport resizing establishes
+reflow; it does not replace the outstanding actual zoom/screen-reader checks.

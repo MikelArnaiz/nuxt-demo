@@ -17,6 +17,10 @@ useHead(() => ({ title: props.heading }))
   max-inline-size: calc(470px + 2 * var(--n-space-l));
   margin-inline: auto;
   padding: var(--n-space-xl) var(--n-space-l);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-block-size: 100svh;
 }
 
 h1 {

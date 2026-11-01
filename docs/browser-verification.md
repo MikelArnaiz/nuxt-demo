@@ -75,3 +75,31 @@ To finish the manual pass:
 
 Chromium is the automated baseline. Firefox/WebKit and actual assistive
 technology have not been certified by this suite.
+
+## Milestone 8 presentation verification — 2026-10-31
+
+Using Node 24.22.2 and production output with real Nord components:
+
+- Eight Chromium browser tests and four unit tests pass, together with application
+  and browser-test type checking and the production build.
+- Email exposes its example placeholder while remaining initially empty and
+  visibly labelled. Tab order remains Email → Password → visibility → opt-in → submit.
+- The inline visibility control exposes “Show password” / “Hide password” as its
+  accessible name, renders exactly one locally bundled SVG eye icon, and opens
+  a tooltip matching its action. Pointer, Enter, and Space preserve the value,
+  avoid submission/initial validation, and retain keyboard access.
+- Desktop 1440×900 screenshot: form width 470px, 264px above and below the
+  heading/form group; input, icon button, and submit align correctly.
+- Success 1440×900 screenshot: approximately 362px above and below the
+  heading/content group, using the same shared layout as sign-up.
+- Mobile 320×800 screenshot: form width 272px, approximately 205px above and below
+  the initial group. Errors and wrapped checkbox text remain readable.
+- Short 320×240 inspection and browser assertions: content grows beyond the
+  viewport with page padding, heading and submit can scroll into view, and no
+  horizontal overflow occurs. On success, the heading and return link remain
+  reachable.
+- Keyboard-focused screenshot shows Nord's focus border on the inline action.
+  Production tests report no browser warnings/errors.
+
+The earlier actual browser zoom and spoken screen-reader checks remain pending;
+this milestone does not claim to complete them.

@@ -88,6 +88,7 @@ async function submit() {
         name="email"
         type="email"
         autocomplete="email"
+        placeholder="e.g. name@example.com"
         :value="email"
         :error="errors.email"
         @input="updateEmail"
@@ -95,29 +96,37 @@ async function submit() {
         expand
         size="l"
       />
-      <div class="password-field">
-        <nord-input
-          ref="passwordInput"
-          label="Password"
-          name="password"
-          :type="passwordType"
-          autocomplete="new-password"
-          :value="password"
-          :error="errors.password"
-          @input="updatePassword"
-          required
-          expand
-          size="l"
-        />
+      <nord-input
+        ref="passwordInput"
+        label="Password"
+        name="password"
+        :type="passwordType"
+        autocomplete="new-password"
+        :value="password"
+        :error="errors.password"
+        @input="updatePassword"
+        required
+        expand
+        size="l"
+      >
         <nord-button
-          class="password-visibility"
+          slot="end"
           type="button"
-          variant="default"
+          square
+          size="l"
+          aria-describedby="password-tooltip"
           @click="passwordVisible = !passwordVisible"
         >
-          <span>{{ passwordVisibilityLabel }}</span>
+          <span>
+            <nord-icon v-if="passwordVisible" name="interface-edit-off" />
+            <nord-icon v-else name="interface-edit-on" />
+            <nord-visually-hidden>{{ passwordVisibilityLabel }}</nord-visually-hidden>
+          </span>
         </nord-button>
-      </div>
+      </nord-input>
+      <nord-tooltip id="password-tooltip">
+        {{ passwordVisibilityLabel }}
+      </nord-tooltip>
       <nord-checkbox
         name="product-updates"
         label="Receive occasional product updates and announcements."
@@ -136,15 +145,5 @@ async function submit() {
   display: grid;
   gap: var(--n-space-l);
   min-inline-size: 0;
-}
-
-.password-field {
-  display: grid;
-  gap: var(--n-space-s);
-  min-inline-size: 0;
-}
-
-.password-visibility {
-  justify-self: end;
 }
 </style>

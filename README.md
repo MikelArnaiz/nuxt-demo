@@ -26,9 +26,12 @@ ignoring surrounding whitespace; passwords need only be nonempty and are never
 trimmed. Password visibility and the optional product-updates checkbox remain
 connected to local state.
 
-The white page uses a centered heading and a responsive 470px content column,
-without a header or form card. Native submission is prevented. Values stay in
-component memory and reset on reload or when leaving the form, including when
+Both white pages vertically center the heading and content in a responsive
+470px content column, with scrolling on short screens and no header or form card.
+Email has an example placeholder; the password visibility icon button sits inside
+the input and has a changing accessible action name and tooltip. Native submission
+is prevented. Values stay in component memory and reset on reload or when leaving
+the form, including when
 returning through browser history. No account is created.
 
 ## Setup and development

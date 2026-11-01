@@ -361,3 +361,42 @@ Checked official Playwright guidance for
 [web-server ownership](https://playwright.dev/docs/test-webserver),
 [shadow-DOM locators](https://playwright.dev/docs/locators#locate-in-shadow-dom),
 and [browser projects](https://playwright.dev/docs/test-projects).
+
+## D16. Inline password action, email example, and safe vertical centering
+
+Milestone 8 uses the password input's public `end` slot for a square large Nord
+button, matching the large input. The eye (`interface-edit-on`) means “Show
+password”; the crossed-out eye (`interface-edit-off`) means “Hide password”. Vue
+conditionally renders one icon inside a stable span, preserving Nord's light-DOM
+proxy button and Lit markers. The input and action button remain mounted, and
+`type="button"` keeps toggling out of submission and validation.
+
+Use changing `nord-visually-hidden` text inside the stable span to name the
+internal native button across Nord's shadow-DOM boundary. Browser role/name
+queries verify the native control is named before and after toggling. Decorative
+icons stay unnamed. A persistent Nord Tooltip, referenced by `aria-describedby`,
+uses the same computed action text. Focus styling and tooltip behavior use Nord's
+public APIs. See [Input custom button](https://nordhealth.design/components/input/#custom-button),
+[Tooltip](https://nordhealth.design/components/tooltip/), and
+[Visually Hidden](https://nordhealth.design/components/visually-hidden/).
+
+Pin `@nordhealth/icons` 3.21.0 as a direct dependency, matching the version already
+resolved through Nord. Bundle only the two SVG assets using Vite's `?raw` imports
+and `NordIcon.registerIcon`, rather than fetching the icons from Nord's CDN at
+runtime. The existing lockfile already contained that exact package; promoting
+it to a direct dependency introduces no new resolved package or version.
+
+Email gains the example placeholder “e.g. name@example.com”; its visible label,
+empty initial value, autocomplete, and validation rules stay the same. Center
+both pages through the shared PageContent layout. Flexbox with
+`min-block-size: 100svh` centers each heading/content group and lets
+the main element grow beyond the viewport. Existing padding protects the edges;
+short screens and error text extend the document and remain scrollable. A fixed
+height or absolute positioning would risk clipping content above the viewport.
+
+Verified on 2026-10-31 with Node 24.22.2: four unit tests, eight production browser
+tests, type checking, and build pass. Browser checks cover labels, tooltip,
+rendered SVGs, pointer/Enter/Space toggling, preserved values, natural Tab order,
+and short-screen reachability. Desktop/mobile screenshots confirm centering and
+focus styling. Actual zoom and spoken screen-reader verification remain the
+separate manual checks recorded in milestone 7.

@@ -33,9 +33,13 @@ they are not additional requirements supplied by the employer.
 ### Sign-up: `/`
 
 - Heading: “Sign up”.
-- Email input, visibly labelled “Email” and marked required.
+- Email input, visibly labelled “Email” and marked required, with placeholder
+  “e.g. name@example.com”. The placeholder does not replace the visible label
+  or populate the input's value.
 - Password input, visibly labelled “Password” and marked required.
-- Password visibility control labelled “Show password” or “Hide password”.
+- Icon-only password visibility control inside the right edge of the password
+  input, with accessible name and tooltip “Show password” or “Hide password”
+  according to its current action.
 - Optional checkbox: “Receive occasional product updates and announcements.”
 - Submit button: “Create account”.
 
@@ -91,7 +95,7 @@ visibility preserves the value and does not submit or validate the form.
 ## Visual direction
 
 Use [Nordhealth's careers sign-in page](https://careers.nordhealth.com/connect/login)
-as the visual reference for the centered heading, narrow form,
+as the visual reference for vertical centering, the centered heading, narrow form,
 whitespace, and primary-action placement. Implement the form with Nord Design
 System components and tokens, prioritizing their supported styling and accessible
 behavior over exact reproduction of Teamtailor controls.
@@ -101,14 +105,23 @@ behavior over exact reproduction of Teamtailor controls.
   empty space for the reference's header.
 - Center a single content column, approximately 470 CSS pixels wide on desktop.
   Let it shrink on smaller screens with comfortable side padding.
+- Vertically center each page's heading and content as one group within the viewport
+  when space permits. Keep comfortable top and bottom padding; when content
+  exceeds the available height, allow normal vertical scrolling so the heading,
+  validation errors, and all controls remain reachable on short screens and at zoom.
 - Center the primary heading above the form. Keep field labels left-aligned,
   required indicators visible, and inputs and the submit button full-width.
-- Use Nord inputs, a Nord checkbox for product updates, a Nord primary submit
-  button, and a secondary Nord button for password visibility.
+- Use Nord inputs, a Nord checkbox for product updates, and a Nord primary submit
+  button. For password visibility, use a square custom Nord button in the password
+  input's `end` slot, following
+  [Nord's custom button example](https://nordhealth.design/components/input/#custom-button).
+  Conditionally render `interface-edit-on` or `interface-edit-off` through
+  `nord-icon` so only the icon for the current action is shown. Keep the button
+  non-submitting (`type="button"`).
 - Follow the reference's dark heading, blue primary action, and spacious rhythm
   using Nord typography, spacing, colors, and supported component sizes. Small
   visual differences from the reference are acceptable; use public styling APIs.
-- Reuse the content width, typography, and spacing on `/success`.
+- Reuse the vertical centering, content width, typography, and spacing on `/success`.
 - Keep the submit label “Create account”. The reference's social-login section,
   home shortcut, and account-switching link are not part of this demo.
 
@@ -145,6 +158,7 @@ management, and a custom component library.
 ## Acceptance checklist
 
 - [ ] A fresh form has empty inputs, hidden password, unchecked opt-in, and no errors.
+- [x] The empty email input shows “e.g. name@example.com” while retaining its visible Email label.
 - [ ] Empty submission shows both required errors and focuses email.
 - [ ] Whitespace-only email shows the required error.
 - [ ] Malformed email prevents navigation and shows the format error.
@@ -154,12 +168,14 @@ management, and a custom component library.
 - [ ] Invalid submission preserves email, password, and opt-in state.
 - [ ] After submission, editing updates errors, including when a value becomes invalid again.
 - [ ] Password visibility toggles by keyboard and pointer without clearing or submitting.
+- [x] The password visibility button sits inside the input's right edge and switches its icon, accessible action name, and tooltip together.
 - [ ] Enter submits the form.
 - [ ] Valid submission reaches success with the opt-in both selected and unselected.
 - [ ] Success direct visits and refreshes work without personal data or stored state.
 - [ ] Returning to sign-up starts a fresh form.
 - [ ] Keyboard order, focus visibility, labels, error associations, and route announcements work.
 - [ ] Sign-up displays a centered “Sign up” heading on a white page without a header, logo, or form card.
+- [ ] Both pages' headings and content are vertically centered together when space permits; short screens, validation errors, and zoom leave all content reachable by scrolling.
 - [ ] Desktop content is approximately 470 CSS pixels wide, with left-aligned field labels and full-width inputs and submit button.
 - [ ] Both routes use consistent typography, content width, and spacing, with Nord controls and tokens taking precedence over exact visual matching.
 - [ ] Narrow-screen and zoom checks reveal no inaccessible content or horizontal overflow.

@@ -41,6 +41,7 @@ test('fresh controls expose labels, required state, autocomplete, and natural ke
   await expectFreshForm(page)
   const { email, password, updates, submit } = controls(page)
   await expect(email).toHaveAttribute('autocomplete', 'email')
+  await expect(email).toHaveAttribute('placeholder', 'e.g. name@example.com')
   await expect(password).toHaveAttribute('autocomplete', 'new-password')
   await expect(email).toHaveAttribute('required', '')
   await expect(password).toHaveAttribute('required', '')
@@ -105,12 +106,26 @@ test('email validity comes from the browser, including whitespace and malformed 
 test('password visibility preserves values and does not submit using pointer, Enter, or Space', async ({ page }) => {
   await page.goto('/')
   const { email, password, updates } = controls(page)
+  const toggle = page.locator('nord-input[name="password"] nord-button[slot="end"]')
+  const icon = toggle.locator('nord-icon')
+  const tooltip = page.locator('nord-tooltip')
+  await expect(icon).toHaveCount(1)
+  await expect(icon).toHaveAttribute('name', 'interface-edit-on')
+  await expect(icon.locator('svg')).toBeVisible()
+  await toggle.hover()
+  await expect(tooltip).toBeVisible()
+  await expect(tooltip).toHaveText('Show password')
   await password.fill(' demo-password ')
   await page.getByRole('button', { name: 'Show password', exact: true }).click()
   await expect(password).toHaveAttribute('type', 'text')
   await expect(password).toHaveValue(' demo-password ')
+  await expect(icon).toHaveCount(1)
+  await expect(icon).toHaveAttribute('name', 'interface-edit-off')
+  await expect(icon.locator('svg')).toBeVisible()
+  await expect(tooltip).toHaveText('Hide password')
   await page.getByRole('button', { name: 'Hide password', exact: true }).press('Enter')
   await expect(password).toHaveAttribute('type', 'password')
+  await expect(icon).toHaveAttribute('name', 'interface-edit-on')
   await page.getByRole('button', { name: 'Show password', exact: true }).press('Space')
   await expect(password).toHaveAttribute('type', 'text')
   await expect(password).toHaveValue(' demo-password ')
@@ -186,8 +201,8 @@ test('direct success visits and refreshes have generic content and natural initi
   }
 })
 
-test('both routes fit a 320px viewport, including visible validation errors', async ({ page }) => {
-  await page.setViewportSize({ width: 320, height: 800 })
+test('both routes reflow in a short 320px viewport with reachable content and validation errors', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 240 })
   for (const route of ['/', '/success']) {
     await page.goto(route)
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
@@ -197,5 +212,11 @@ test('both routes fit a 320px viewport, including visible validation errors', as
       await expect(page.getByText('Enter your password.', { exact: true })).toBeVisible()
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    const heading = page.getByRole('heading', { level: 1 })
+    await heading.scrollIntoViewIfNeeded()
+    await expect(heading).toBeInViewport()
+    const lastControl = route === '/' ? controls(page).submit : page.getByRole('link', { name: 'Back to sign up' })
+    await lastControl.scrollIntoViewIfNeeded()
+    await expect(lastControl).toBeInViewport()
   }
 })
