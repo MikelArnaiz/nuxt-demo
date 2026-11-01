@@ -903,3 +903,74 @@ Verified with the real components: equal top/bottom space at 1440×900 and 320×
 reachable heading/submit controls in a scrolling 320×240 viewport. Existing
 validation, navigation, and fresh-state checks pass. Viewport resizing establishes
 reflow; it does not replace the outstanding actual zoom/screen-reader checks.
+
+# Milestone 9: browser projects and accessibility scans
+
+## One behavior contract across two engines
+
+Playwright's `projects` array runs the same tests under different browser
+configurations. `Desktop Chrome` selects Chromium; `Desktop Safari` selects
+bundled WebKit. Each case still gets an isolated browser context, and the
+existing production-server setup builds and serves Nuxt once for the run.
+Eight behaviors plus three scan states produce 11 cases per browser, 22 total.
+Use `--project=chromium` or `--project=webkit` when investigating one engine.
+
+These tests interact with the browser DOM after Nuxt/Vue and Nord have rendered.
+They do not care whether local values came from Vue refs or React state. This
+same project configuration and axe integration would work for a React app;
+framework-specific unit tests cannot replace this real-engine evidence.
+
+## A browser difference is something to investigate
+
+The first WebKit run passed validation and navigation but failed Tab-order
+checks for buttons, checkboxes, and links. The same thing happened on a plain
+HTML page without Vue or Nord. This isolated the cause to macOS WebKit's
+keyboard-navigation behavior. Native Option-Tab reached every control in order.
+
+`tabForward` therefore sends `Alt+Tab` (Option-Tab) on macOS WebKit and ordinary
+Tab elsewhere. It still checks focus after each real keystroke against the same
+expected order. It does not call `.focus()` to simulate keyboard navigation or
+change system preferences. Pointer/Enter/Space actions, validation focus,
+route announcements, and all other behavioral assertions remain intact.
+
+## Scan the state that actually exists
+
+`new AxeBuilder({ page }).withTags(...).analyze()` examines the current rendered
+page. Running it immediately after a click could inspect the old state. As with
+an awaited Testing Library query after a React state change, Playwright's
+retrying assertions establish that the desired DOM exists before the scan.
+
+Each scan starts at a fresh form and waits for the real native controls exposed
+through Nord's open shadow roots. The required-error case submits empty values
+and waits for both messages. The success case fills valid values and submits,
+then waits for the URL, title, heading, return link, and announcement. It tests
+the navigated state rather than only opening `/success` directly.
+
+The four tags `wcag2a`, `wcag2aa`, `wcag21a`, and `wcag21aa` select WCAG 2.1 A/AA
+rules, including the earlier 2.0 requirements. Scans cover the whole document
+with no element exclusions or disabled rules. Comparing `results.violations`
+with `[]` retains the offending rule, affected nodes, explanation, and help URL
+in failures. The HTML report also stores full axe JSON, including incomplete
+checks that need human review. Open it with `npx playwright show-report`.
+
+## Nuxt owns the document shell
+
+All initial scans found `html-has-lang`: the app's English content had no
+document language. `app.head.htmlAttrs.lang = 'en'` in `nuxt.config.ts` makes
+Nuxt emit that language in the document shell on both routes, while each page
+continues to set its title through `useHead` in PageContent. This is document
+metadata, not reactive form state. In a React app, the equivalent belongs on
+the root HTML template or in the framework's document configuration, not in a
+sign-up component's state.
+
+## What passing proves
+
+On 2026-11-01, all 22 production browser cases, four unit tests, both TypeScript
+checks, and the production build passed using Node 24.22.2. All six scans
+detected zero selected WCAG violations.
+
+Automated rules complement the existing keyboard, focus, and announcement
+assertions. Neither proves screen-reader speech or every accessibility
+criterion. Bundled WebKit is engine coverage, not the Safari app or a VoiceOver
+session. Keep the actual zoom/screen-reader checks open and record those limits
+separately in [browser verification notes](browser-verification.md).

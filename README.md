@@ -60,22 +60,49 @@ npm run preview
 `npm test` runs focused validation tests using Node's built-in test runner and
 TypeScript support. These test message selection and password rules.
 
-Milestone 7 adds eight Playwright browser tests using actual Nord components:
+Playwright runs eight behavior tests and three accessibility scans per browser
+using actual Nord components (22 cases across Chromium and WebKit):
 
 ```sh
-npx playwright install chromium
+npx playwright install chromium webkit
 npm run test:browser
+# Run just one browser project:
+npm run test:browser -- --project=chromium
+npm run test:browser -- --project=webkit
+# Open the most recent local HTML report:
+npx playwright show-report
 ```
 
 The browser command builds the app, starts its production server at
-`http://127.0.0.1:4173`, runs Chromium, and stops the server. Keep that port free;
+`http://127.0.0.1:4173`, runs the selected browsers, and stops the server. Keep that port free;
 it deliberately does not reuse a running development server. Each test has an
 isolated browser context. Coverage includes validation and focus, password
 visibility, keyboard controls, `person@localhost`, opt-in choices, route
 announcements, fresh form state, direct success visits/refreshes, and 320px
-overflow. Failures retain screenshots and traces under `test-results/`.
+overflow. On macOS WebKit, keyboard-order tests use native Option-Tab
+(`Alt+Tab` in Playwright) to include buttons, checkboxes, and links when the
+system's Keyboard navigation preference is off. They keep the same focus-order
+assertions and do not change system preferences or force focus.
+Failures retain screenshots and traces under `test-results/`; the HTML report
+is written to `playwright-report/`. Both directories are ignored by Git.
 Visual styling is checked manually rather than asserting exact CSS values.
 Use disposable test values when debugging because traces can contain entered values.
+
+The three `@axe-core/playwright` scans cover the initial form, both required
+errors after empty submission, and success reached by valid submission. Each
+waits for its rendered state, scans the whole document including Nord's open
+shadow roots, and asserts no detected violations under `wcag2a`, `wcag2aa`,
+`wcag21a`, and `wcag21aa` (WCAG 2.1 A/AA, including its 2.0 requirements).
+No rules or elements are excluded. Each scan attaches full axe JSON to the HTML
+report, including passes, violations, and incomplete results that need review;
+failures also print rule IDs, affected nodes, failure summaries, and help URLs.
+
+These automated rules complement the interaction tests; a passing scan does
+not establish full WCAG conformance, actual zoom behavior, or screen-reader
+speech. Playwright's bundled WebKit tests Safari's engine, not the Safari app
+or VoiceOver. Actual Safari/assistive-technology checks remain manual. See
+[Playwright's accessibility guidance](https://playwright.dev/docs/accessibility-testing)
+and [browser guidance](https://playwright.dev/docs/browsers#webkit).
 
 `npm run typecheck` checks both the Nuxt application and browser-test TypeScript.
 See [browser verification notes](docs/browser-verification.md) for manual

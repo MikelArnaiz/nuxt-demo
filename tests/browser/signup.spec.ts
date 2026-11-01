@@ -1,4 +1,5 @@
 import { test as base, expect, type Page } from '@playwright/test'
+import AxeBuilder from '@axe-core/playwright'
 
 // Every test gets an isolated browser context and exercises the shipped Nord elements.
 const test = base.extend<{ cleanConsole: void }>({
@@ -24,6 +25,12 @@ function controls(page: Page) {
   }
 }
 
+async function tabForward(page: Page, browserName: string) {
+  // macOS WebKit uses Option-Tab to include buttons, checkboxes, and links
+  // when the system's Keyboard navigation preference is off.
+  await page.keyboard.press(browserName === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab')
+}
+
 async function expectFreshForm(page: Page) {
   const { email, password, updates } = controls(page)
   await expect(page).toHaveURL('/')
@@ -36,7 +43,7 @@ async function expectFreshForm(page: Page) {
   await expect(page.getByRole('button', { name: 'Show password', exact: true })).toBeVisible()
 }
 
-test('fresh controls expose labels, required state, autocomplete, and natural keyboard order', async ({ page }) => {
+test('fresh controls expose labels, required state, autocomplete, and natural keyboard order', async ({ page, browserName }) => {
   await page.goto('/')
   await expectFreshForm(page)
   const { email, password, updates, submit } = controls(page)
@@ -48,7 +55,7 @@ test('fresh controls expose labels, required state, autocomplete, and natural ke
   await expect(submit).toBeEnabled()
   await expect(page.locator('body')).toBeFocused()
   for (const control of [email, password, page.getByRole('button', { name: 'Show password', exact: true }), updates, submit]) {
-    await page.keyboard.press('Tab')
+    await tabForward(page, browserName)
     await expect(control).toBeFocused()
   }
 })
@@ -103,7 +110,7 @@ test('email validity comes from the browser, including whitespace and malformed 
   await expect(page).toHaveURL('/success')
 })
 
-test('password visibility preserves values and does not submit using pointer, Enter, or Space', async ({ page }) => {
+test('password visibility preserves values and does not submit using pointer, Enter, or Space', async ({ page, browserName }) => {
   await page.goto('/')
   const { email, password, updates } = controls(page)
   const toggle = page.locator('nord-input[name="password"] nord-button[slot="end"]')
@@ -132,7 +139,7 @@ test('password visibility preserves values and does not submit using pointer, En
   await expect(email).not.toHaveAttribute('aria-invalid', 'true')
   await expect(page.getByText('Enter your email address.', { exact: true })).toHaveCount(0)
   await expect(page).toHaveURL('/')
-  await page.keyboard.press('Tab')
+  await tabForward(page, browserName)
   await expect(updates).toBeFocused()
   await page.keyboard.press('Space')
   await expect(updates).toBeChecked()
@@ -189,14 +196,14 @@ test('opted-out Enter submission accepts person@localhost and a whitespace-only 
   await expectFreshForm(page)
 })
 
-test('direct success visits and refreshes have generic content and natural initial focus', async ({ page }) => {
+test('direct success visits and refreshes have generic content and natural initial focus', async ({ page, browserName }) => {
   await page.goto('/success')
   for (const refresh of [false, true]) {
     if (refresh) await page.reload()
     await expect(page).toHaveTitle("You're signed up!")
     await expect(page.getByRole('main')).toContainText('Your demo sign-up is complete. No account has been created.')
     await expect(page.locator('body')).toBeFocused()
-    await page.keyboard.press('Tab')
+    await tabForward(page, browserName)
     await expect(page.getByRole('link', { name: 'Back to sign up' })).toBeFocused()
   }
 })
@@ -220,3 +227,39 @@ test('both routes reflow in a short 320px viewport with reachable content and va
     await expect(lastControl).toBeInViewport()
   }
 })
+
+for (const state of ['initial form', 'required errors', 'submitted success'] as const) {
+  test(`WCAG 2.1 A/AA scan: ${state}`, async ({ page }, testInfo) => {
+    await page.goto('/')
+    await expectFreshForm(page)
+    const { email, password, submit } = controls(page)
+
+    if (state === 'required errors') {
+      await submit.click()
+      await expect(page.getByText('Enter your email address.', { exact: true })).toBeVisible()
+      await expect(page.getByText('Enter your password.', { exact: true })).toBeVisible()
+    } else if (state === 'submitted success') {
+      await email.fill('person@example.com')
+      await password.fill('disposable-demo-password')
+      await submit.click()
+      await expect(page).toHaveURL('/success')
+      await expect(page).toHaveTitle("You're signed up!")
+      await expect(page.getByRole('heading', { name: "You're signed up!", level: 1 })).toBeVisible()
+      await expect(page.getByRole('link', { name: 'Back to sign up' })).toBeVisible()
+      await expect(page.getByRole('status')).toHaveText("You're signed up!")
+    }
+
+    // Scan the whole rendered document, including Nord's open shadow roots.
+    // WCAG 2.1 includes the 2.0 A/AA rules as well as the 2.1 additions.
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze()
+
+    await testInfo.attach('axe-results', {
+      body: JSON.stringify(results, null, 2),
+      contentType: 'application/json',
+    })
+    // Preserve rule IDs, affected nodes, failure summaries, and help URLs.
+    expect(results.violations, `${state}: detected WCAG 2.1 A/AA violations`).toEqual([])
+  })
+}

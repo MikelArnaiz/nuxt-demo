@@ -142,6 +142,32 @@ behavior over exact reproduction of Teamtailor controls.
 - Verify actual Nord control behavior rather than assuming that the design
   system alone guarantees accessibility.
 
+## Testing and code quality
+
+- Run the Playwright browser suite against the production build in both Chromium
+  and WebKit, using actual Nord components. WebKit provides coverage of Safari's
+  engine; it is not the Safari application and does not replace real Safari or
+  VoiceOver checks.
+- Add accessibility scans through `@axe-core/playwright` for three rendered
+  states in each browser: the initial sign-up form, the form after empty
+  submission with both required errors visible, and the success page reached
+  through valid submission. Require no detected violations under the selected
+  WCAG 2.1 A/AA rules, and document the scan scope.
+- Preserve interaction assertions for keyboard order, password visibility,
+  first-invalid-field focus, error associations, and route announcements.
+  Automated scans complement these tests; they do not establish full accessibility
+  conformance or verify spoken screen-reader output. Retain manual zoom and
+  screen-reader verification.
+- Add ESLint for Vue/TypeScript code checks and Prettier for formatting, with
+  compatible configurations and standalone `lint`, `format`, and `format:check`
+  commands. Exclude generated output, dependencies, and test artifacts.
+- Use Husky and lint-staged for a lightweight pre-commit hook: format supported
+  staged files automatically and block commits on lint errors in staged code.
+  Leave semantic fixes for review and preserve unrelated unstaged changes.
+- Keep full type checking, builds, and browser tests outside the pre-commit hook;
+  run them before delivery and after meaningful changes. Document hook setup and
+  manual commands. GitHub Actions is outside this demo's scope.
+
 ## Data handling and scope
 
 Form values belong to the sign-up screen and remain in memory only. Do not put
@@ -181,4 +207,8 @@ management, and a custom component library.
 - [ ] Narrow-screen and zoom checks reveal no inaccessible content or horizontal overflow.
 - [ ] Credentials are never persisted, transmitted, or logged by application code.
 - [ ] Type checking, focused automated tests, and production build pass.
+- [x] Existing browser scenarios and the three axe scan states pass in Chromium and WebKit.
+- [x] Manual zoom and screen-reader checks are recorded separately from automated scan results.
+- [ ] ESLint and Prettier checks pass through the documented standalone commands.
+- [ ] Pre-commit formats staged files and blocks lint errors without changing unrelated unstaged work or running heavyweight checks.
 - [ ] README documents setup, commands, assumptions, and the simulated registration.

@@ -400,3 +400,50 @@ rendered SVGs, pointer/Enter/Space toggling, preserved values, natural Tab order
 and short-screen reachability. Desktop/mobile screenshots confirm centering and
 focus styling. Actual zoom and spoken screen-reader verification remain the
 separate manual checks recorded in milestone 7.
+
+## D17. Chromium/WebKit projects and scoped accessibility scans
+
+Milestone 9 adds a `webkit` project using Playwright's `Desktop Safari` device
+alongside the existing `chromium` project. Both run the same behavior suite and
+three new scan cases against a fresh production build with actual Nord controls.
+Keep the existing two workers, isolated contexts, zero retries, console checks,
+and production-server ownership. The bundled WebKit engine is not the Safari
+application and does not provide VoiceOver evidence.
+
+Pin `@axe-core/playwright` 4.14.0; the lockfile resolves axe-core 4.14.0. Each scan
+starts from a fresh form and waits for observable rendered controls. Empty
+submission must show both required errors; valid submission must reach the
+success route with its title, heading, return link, and route announcement.
+Scan the entire document, including open shadow roots, with `wcag2a`, `wcag2aa`,
+`wcag21a`, and `wcag21aa`. These select WCAG 2.1 A/AA rules including the 2.0
+requirements. Do not disable rules or exclude elements. Compare the full
+violations array with `[]` so failures retain rule IDs, affected targets,
+failure summaries, and help URLs. Attach full axe JSON to an HTML report alongside
+the console list reporter, with automatic report opening disabled. Reports and
+failure artifacts remain ignored by Git.
+
+The initial scans found `html-has-lang` on both routes. Set the English document
+language once through Nuxt's `app.head.htmlAttrs` so it also appears in the
+production document shell; page components continue to own their titles.
+No Nord internals or validation behavior need changing.
+
+On this Mac, default WebKit Tab skips buttons, checkboxes, and links because
+Keyboard navigation is off. Confirmed the same behavior on a disposable native
+HTML page: Tab skipped those controls, while Option-Tab reached them in order.
+Use native Option-Tab (`Alt+Tab` in Playwright) only for macOS WebKit, keeping
+ordinary Tab elsewhere and the same control-by-control focus assertions.
+This exercises actual keyboard navigation without modifying the DOM, forcing
+focus, changing user preferences, or skipping tests. See the
+[Playwright WebKit keyboard discussion](https://github.com/microsoft/playwright/issues/41808)
+and [Apple's keyboard shortcuts](https://support.apple.com/en-lamr/guide/safari/cpsh003/mac).
+
+Verified on 2026-11-01 using Node 24.22.2 and macOS 26.5.2: all 22 production
+browser cases pass in Chromium 156 and WebKit 27.2, as do four unit tests,
+application/browser-test type checking, and the production build. All six scans
+report zero selected violations. Actual zoom and spoken screen-reader
+checks remain open in [browser verification notes](browser-verification.md).
+
+Checked official Playwright guidance for
+[projects](https://playwright.dev/docs/test-projects),
+[accessibility states, rule tags, and result attachments](https://playwright.dev/docs/accessibility-testing),
+and [browser installation and WebKit](https://playwright.dev/docs/browsers#webkit).

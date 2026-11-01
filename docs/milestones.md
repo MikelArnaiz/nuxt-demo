@@ -185,7 +185,9 @@ Document any static-host fallback needed for direct route access.
 - [x] Add a small browser suite covering the core acceptance scenarios.
 - [x] Exercise actual Nord components rather than replacing them with test doubles.
 - [x] Include `person@localhost` as an accepted single-label email in the browser suite.
-- [ ] Manually inspect keyboard use, errors, focus, zoom, and responsive layout.
+- [x] Manually inspect keyboard use, errors, focus, and responsive layout.
+- [ ] Complete actual browser zoom and spoken screen-reader checks recorded in
+  the browser verification notes.
 - [x] Check both routes against the visual acceptance criteria, allowing Nord
   component styling to take precedence over exact matching of the reference.
 - [x] Run type checking, tests, and the production build; fix discovered issues.
@@ -205,7 +207,7 @@ remains open for actual browser zoom and spoken screen-reader output. Native
 Chrome control lacked computer-use permission; the in-app browser did not
 respond to the zoom shortcut. Live-region DOM assertions do not prove speech.
 [Browser verification notes](browser-verification.md) record the evidence,
-scope, and exact remaining manual steps. Submission preparation (now milestone 9)
+scope, and exact remaining manual steps. Submission preparation (now milestone 10)
 has not been started.
 
 Critical review subsequently trimmed the suite to eight browser tests and four
@@ -271,11 +273,56 @@ records slot composition, accessible naming, icon bundling, and the shared
 centering layout. Actual browser zoom and spoken screen-reader output remain
 in the existing milestone 7 manual checklist.
 
-## 9. Submission preparation
+## 9. Accessibility scans and WebKit coverage
+
+- [x] Add WebKit alongside Chromium in the existing Playwright configuration.
+  Run the existing behavior suite in both browsers against production output
+  with real Nord components.
+- [x] Add `@axe-core/playwright` scans in both browsers for the initial form,
+  the form after empty submission with both required errors visible, and the
+  success page reached through valid submission. Wait for each state to render
+  before scanning.
+- [x] Select WCAG 2.1 A/AA scan rules and assert no detected violations. Keep
+  actionable violation details in failures; document any justified exception
+  rather than broadly disabling rules or excluding the form.
+- [x] Retain existing keyboard, password-toggle, focus, error-association,
+  route-announcement, privacy, and responsive checks. Investigate browser
+  differences without weakening the behavioral contract to make tests pass.
+- [x] Document installation of both Playwright browsers, commands for the full
+  suite and individual browser projects, and the limits of automated scans.
+  Distinguish bundled WebKit coverage from actual Safari and VoiceOver testing.
+- [x] Run the expanded browser suite, unit tests, type checking, and production
+  build. Record results in the browser verification notes and keep milestone 7's
+  manual zoom/screen-reader checks open until actually performed.
+
+Done when: existing behavior and all three accessibility scan states pass in
+Chromium and WebKit, with reproducible commands and accurately documented limits.
+
+Learn: Playwright projects, browser-engine differences, axe scan scope, and why
+automated accessibility rules complement interaction and assistive-technology checks.
+
+Verified on 2026-11-01 with Node 24.22.2, Playwright 1.64.1, Chromium 156,
+WebKit 27.2, and axe 4.14.0: all 22 production browser cases (eight behaviors
+and three scans per browser), four unit tests, application/browser-test type
+checking, and the production build passed. All six scans detected no selected
+WCAG 2.1 A/AA violations, with no exclusions or disabled rules. The scans found
+a missing document language; Nuxt now emits `lang="en"` on both routes.
+
+macOS WebKit uses native Option-Tab in the keyboard tests, preserving every
+focus-order assertion without changing system preferences or forcing focus.
+Full axe results are attached to the saved HTML report. Axe leaves the primary
+button's contrast inconclusive because of a Nord pseudo-element; this remains
+a manual review item, not a detected violation or suppressed rule. Decision D17
+and the browser verification notes record the scope and evidence. Milestone 7's
+actual zoom and spoken screen-reader checks remain open.
+
+## 10. Submission preparation
 
 - [ ] Finish README setup, run, test, and build instructions.
 - [ ] Explain simulated registration, assumptions, and relevant trade-offs.
 - [ ] Verify installation and documented commands from a clean setup.
+- [ ] Include Chromium/WebKit installation, accessibility scan scope, lint and
+  formatting commands, and pre-commit setup in the final README review.
 - [ ] Review the acceptance checklist and explain the implementation end to end.
 
 Done when: another developer can run and assess the project using the README,
