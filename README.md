@@ -89,6 +89,10 @@ Recorded on 2026-11-01 with Node 24.22.2 and npm 11.8.0:
   form, and success page, with no element exclusions or disabled rules.
 - A disposable clone verified `npm ci`, hook behavior, development/production
   serving, and static generation using cached packages and browser binaries.
+- The Pages build was checked under `/nuxt-demo/` using a plain static server
+  without an SPA fallback in Chromium and WebKit. Assets, validation, password
+  visibility, sign-up navigation, direct success visits, refreshes, and the return
+  link passed; all requested bundled assets returned HTTP 200.
 - The author completed visual, keyboard, actual 200%/400% browser zoom, and
   VoiceOver checks. Manual primary-button contrast was reported as 6.17:1
   for white text on `#3559C7`; axe left this check inconclusive because of Nord's
@@ -107,7 +111,14 @@ Run `npm run build`, then `npm run preview` to inspect production output locally
 For a Node deployment, start `node .output/server/index.mjs` after building;
 the server handles direct requests to both routes.
 
-For static hosting, run `npx nuxt generate` and deploy `.output/public/`. Configure
-the host's SPA fallback to serve `index.html` (or `200.html` where supported) for
-application routes such as `/success`, preserving the URL and serving assets
-normally. This allows direct visits and refreshes to work.
+For static hosting, run `npm run generate` and deploy `.output/public/`.
+Both `/` and `/success` have generated entry files, so direct visits and refreshes
+work without a host-specific SPA rewrite. The success URL may gain a trailing
+slash when a static host serves `success/index.html`. Both pages still render
+in the browser and require JavaScript.
+
+### GitHub Pages
+
+The demo is deployed to [GitHub Pages](https://mikelarnaiz.github.io/nuxt-demo/)
+through the [Pages workflow](.github/workflows/pages.yml), which runs checks and
+publishes on pushes to `main`.
